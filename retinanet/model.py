@@ -153,7 +153,6 @@ class ClassificationModel(nn.Module):
 
 
 class ResNet(nn.Module):
-
     def __init__(self, num_classes, block, layers):
         self.inplanes = 64
         super(ResNet, self).__init__()

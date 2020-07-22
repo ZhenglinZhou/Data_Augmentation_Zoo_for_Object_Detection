@@ -121,7 +121,10 @@ class VocDataset(Dataset):
     def name_to_label(self, voc_name):
         return self.name_2_label[voc_name]
 
-    def image_aspect_ratio(self, image_path):
+    def image_aspect_ratio(self, image_index):
+        image_root_dir, img_idx = self.ids[image_index]
+        image_path = os.path.join(image_root_dir,
+                                  'JPEGImages', img_idx + '.jpg')
         img = skimage.io.imread(image_path)
         return float(img.shape[1] / float(img.shape[0]))
 

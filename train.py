@@ -9,6 +9,8 @@ import torch.optim as optim
 from retinanet import model
 import numpy as np
 
+from retinanet import csv_eval
+
 def main():
     root_dir = 'D:\VOC\VOCdevkit'
     epochs = 100
@@ -22,10 +24,10 @@ def main():
                                    Normalizer(),
                                    RetinaNet_Augmenter(),
                                    Resizer()]))
-    sampler = AspectRatioBasedSampler(dataset_train, batch_size=2)
+    sampler = AspectRatioBasedSampler(dataset_train, batch_size=2, drop_last=False)
     dataloader_train = DataLoader(dataset_train, num_workers=3,
                                   collate_fn=collater, batch_sampler=sampler)
-    sampler_val = AspectRatioBasedSampler(dataset_val, batch_size=2)
+    sampler_val = AspectRatioBasedSampler(dataset_val, batch_size=2, drop_last=False)
     dataloader_val = DataLoader(dataset_train, num_workers=3,
                                   collate_fn=collater, batch_sampler=sampler)
     retinanet = model.resnet18(num_classes=dataset_train.num_classes(), pretrained=True)
@@ -48,14 +50,14 @@ def main():
     loss_hist =collections.deque(maxlen=500)
 
     retinanet.train()
-    retinanet.modules.freeze_bn()
+    retinanet.freeze_bn()
 
     print('Num training images: {}'.format(len(dataset_train)))
 
     for epoch_num in range(epochs):
 
         retinanet.train()
-        retinanet.module.freeze_bn()
+        retinanet.freeze_bn()
 
         epoch_loss = []
 
@@ -95,10 +97,10 @@ def main():
             except Exception as e:
                 print(e)
                 continue
-        """
-        validation part 
-        
-        """
+
+        """ validation part """
+        print('Evaluating dataset')
+        mAP = csv_eval.evaluate(dataset_val, retinanet)
 
         scheduler.step(np.mean(epoch_loss))
 
