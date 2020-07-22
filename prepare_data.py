@@ -47,10 +47,12 @@ KITTI_CLASSES = [
 class KittiDataset(Dataset):
     def __init__(self,
                  root_dir,
+                 sets,
                  transform=None,
                  keep_difficult=False
                  ):
         self.root_dir = root_dir
+        self.sets = sets
         self.transform = transform
         self.keep_difficult = keep_difficult
 
@@ -78,10 +80,9 @@ class KittiDataset(Dataset):
         return sample
 
     def find_file_list(self):
-        file_path = os.path.join(self.root_dir, 'image_2')
-        for _, _, files in os.walk(file_path):
-            for file in files:
-                self.ids.append(file[:-4])
+        file_path = os.path.join(self.root_dir, self.sets + '.txt')
+        for line in open(file_path):
+            self.ids.append(line.strip())
 
     def load_image(self, image_index):
         img_idx = self.ids[image_index]
