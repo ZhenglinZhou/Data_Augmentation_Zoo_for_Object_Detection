@@ -50,14 +50,14 @@ def main():
     loss_hist =collections.deque(maxlen=500)
 
     retinanet.train()
-    retinanet.freeze_bn()
+    # retinanet.freeze_bn()
 
     print('Num training images: {}'.format(len(dataset_train)))
 
     for epoch_num in range(epochs):
 
         retinanet.train()
-        retinanet.freeze_bn()
+        # retinanet.freeze_bn()
 
         epoch_loss = []
 
