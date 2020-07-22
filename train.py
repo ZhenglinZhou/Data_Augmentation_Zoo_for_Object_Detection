@@ -9,11 +9,14 @@ import torch.optim as optim
 from retinanet import model
 import numpy as np
 
+
 from retinanet import csv_eval
+print('CUDA available: {}'.format(torch.cuda.is_available()))
 
 def main():
     root_dir = 'D:\VOC\VOCdevkit'
     epochs = 100
+
     dataset_train = VocDataset(root_dir, 'train',
                                transform=transforms.Compose([
                                    Normalizer(),
@@ -32,7 +35,7 @@ def main():
                                   collate_fn=collater, batch_sampler=sampler)
     retinanet = model.resnet18(num_classes=dataset_train.num_classes(), pretrained=True)
 
-    use_gpu = False
+    use_gpu = True
 
     if use_gpu:
         if torch.cuda.is_available():

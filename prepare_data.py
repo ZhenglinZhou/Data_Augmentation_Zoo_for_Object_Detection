@@ -1,14 +1,14 @@
 import numpy as np
 import os
-import skimage.io
-import skimage.color
-import skimage.transform
+
 import xml.etree.ElementTree as ET
 import picture_visualization as pv
 import matplotlib.pyplot as plt
 import torch
 from torch.utils.data import Dataset, Sampler
 import random
+import cv2
+
 
 VOC_CLASSES = [
     "aeroplane",
@@ -32,6 +32,102 @@ VOC_CLASSES = [
     "train",
     "tvmonitor",
 ]
+
+KITTI_CLASSES = [
+    'car',
+    'van',
+    'Truck',
+    'pedestrian',
+    'person_sitting',
+    'cyclist',
+    'tram',
+    'misc'
+]
+
+class KittiDataset(Dataset):
+    def __init__(self,
+                 root_dir,
+                 transform=None,
+                 keep_difficult=False
+                 ):
+        self.root_dir = root_dir
+        self.transform = transform
+        self.keep_difficult = keep_difficult
+
+        self.categories = KITTI_CLASSES
+
+        self.name_2_label = dict(
+            zip(self.categories, range(len(self.categories)))
+        )
+        self.label_2_name = {
+            v: k
+            for k, v in self.name_2_label.items()
+        }
+        self.ids = list()
+        self.find_file_list()
+
+    def __len__(self):
+        return len(self.ids)
+
+    def __getitem__(self, image_index):
+        img = self.load_image(image_index)
+        annot = self.load_annotations(image_index)
+        sample = {'img':img, 'annot':annot}
+        if self.transform:
+            sample = self.transform(sample)
+        return sample
+
+    def find_file_list(self):
+        file_path = os.path.join(self.root_dir, 'image_2')
+        for _, _, files in os.walk(file_path):
+            for file in files:
+                self.ids.append(file[:-4])
+
+    def load_image(self, image_index):
+        img_idx = self.ids[image_index]
+        image_path = os.path.join(self.root_dir,
+                                 'image_2', img_idx + '.png')
+        img = cv2.imread(image_path)
+        if len(img.shape) == 2:
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+        return img.astype(np.float32)/255.0
+
+    def load_annotations(self, image_index):
+        img_idx = self.ids[image_index]
+        anna_path = os.path.join(self.root_dir,
+                                'label_2', img_idx + '.txt')
+        annotations = []
+        with open(anna_path) as file:
+            lines = file.readlines()
+            for line in lines:
+                items = line.split(" ")
+                name = items[0].lower().strip()
+                if name == 'dontcare':
+                    continue
+                else:
+                    bndbox = [float(items[i+4]) for i in range(4)]
+                    label = self.name_2_label[name]
+                    bndbox.append(int(label))
+                annotations.append(bndbox)
+        annotations = np.array(annotations)
+        return annotations
+
+    def label_to_name(self, voc_label):
+        return self.label_2_name[voc_label]
+
+    def name_to_label(self, voc_name):
+        return self.name_2_label[voc_name]
+
+    def image_aspect_ratio(self, image_index):
+        img_idx = self.ids[image_index]
+        image_path = os.path.join(self.root_dir,
+                                  'image_2', img_idx + '.png')
+        img = cv2.imread(image_path)
+        return float(img.shape[1] / float(img.shape[0]))
+
+    def num_classes(self):
+        return 8
 
 class VocDataset(Dataset):
     def __init__(self,
@@ -83,9 +179,9 @@ class VocDataset(Dataset):
         image_root_dir, img_idx = self.ids[image_index]
         image_path = os.path.join(image_root_dir,
                                  'JPEGImages', img_idx + '.jpg')
-        img = skimage.io.imread(image_path)
+        img = cv2.imread(image_path)
         if len(img.shape) == 2:
-            img = skimage.color.gray2rgb(img)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         return img.astype(np.float32)/255.0
 
@@ -125,7 +221,7 @@ class VocDataset(Dataset):
         image_root_dir, img_idx = self.ids[image_index]
         image_path = os.path.join(image_root_dir,
                                   'JPEGImages', img_idx + '.jpg')
-        img = skimage.io.imread(image_path)
+        img = cv2.imread(image_path)
         return float(img.shape[1] / float(img.shape[0]))
 
     def num_classes(self):
@@ -215,7 +311,8 @@ class Resizer(object):
             scale = max_side / largest_side
 
         # resize the image with the computed scale
-        image = skimage.transform.resize(image, (int(round(rows * scale)), int(round((cols * scale)))))
+        image = cv2.resize(image, (int(round(rows * scale)), int(round((cols * scale)))))
+        # image = skimage.transform.resize(image, (int(round(rows * scale)), int(round((cols * scale)))))
         rows, cols, cns = image.shape
 
         pad_w = 32 - rows % 32
@@ -255,11 +352,14 @@ class AspectRatioBasedSampler(Sampler):
 
 
 if __name__ == '__main__':
-    root_dir = 'D:\VOC\VOCdevkit'
-    voc = VocDataset(root_dir, 'train')
-    sample = voc.__getitem__(2)
-    # print(sample['annot'])
-    pv.visualization(voc, sample)
+    voc_root_dir = 'D:\VOC\VOCdevkit'
+    kitti_root_dir = 'D:/KITTI/training'
+    # voc = VocDataset(voc_root_dir, 'train')
+    # sample = voc.__getitem__(2)
+    # pv.visualization(voc, sample)
+    kitti = KittiDataset(kitti_root_dir)
+    sample = kitti.__getitem__(10)
+    pv.visualization(kitti, sample)
     # image = sample['img'][:, ::-1, :]
     # fig = plt.imshow(image)
     # plt.show()
