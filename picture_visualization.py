@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from prepare_data import VocDataset
 
 colors = [
     (39, 129, 113),
@@ -110,17 +111,17 @@ def bbox_to_rect(bbox, color):
         fill=False, edgecolor=color, linewidth=2
     )
 
-def visualization(sample):
+def visualization(set, sample):
     image, annots = sample['img'], sample['annot']
     fig = plt.imshow(image)
     for i in range(len(annots)):
         annot = [int(x) for x in annots[i]]
         label = annot[4]
-        name = self.label_2_name(label)
+        name = set.label_to_name(label)
         color = [c/255.0 for c in colors[label]]
         rect = bbox_to_rect(annot, color)
         fig.axes.add_patch(rect)
         fig.axes.text(rect.xy[0]+24, rect.xy[1]+10,
-                      name[i], va='center', ha='center', fontsize=6, color='blue',
+                      name, va='center', ha='center', fontsize=6, color='blue',
                       bbox=dict(facecolor='m'))
     plt.show()

@@ -109,8 +109,11 @@ class VocDataset:
 
         return annotations
 
-    def find_category_id_from_voc_label(self, voc_label):
+    def label_to_name(self, voc_label):
         return self.label_2_name[voc_label]
+
+    def name_to_label(self, voc_name):
+        return self.name_2_label[voc_name]
 
     def image_aspect_ratio(self, image_path):
         img = skimage.io.imread(image_path)
@@ -229,10 +232,10 @@ if __name__ == '__main__':
     root_dir = 'D:\VOC\VOCdevkit'
     voc = VocDataset(root_dir, 'train')
     sample = voc.__getitem__(2)
-    name = []
-    # pv.visualization(sample)
-    image = sample['img'][:, ::-1, :]
-    fig = plt.imshow(image)
-    plt.show()
+    # print(sample['annot'])
+    pv.visualization(voc, sample)
+    # image = sample['img'][:, ::-1, :]
+    # fig = plt.imshow(image)
+    # plt.show()
 
 
