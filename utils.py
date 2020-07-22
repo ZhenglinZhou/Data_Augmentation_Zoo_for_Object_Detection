@@ -34,9 +34,10 @@ class SplitKittiDataset():
         self.write_file(val_file, [self.ids[ind] for ind in val_indices])
 
     def write_file(self, file_name, write_data):
-        f = open(file_name, "a+")
+        f = open(file_name, "w")
         for data in write_data:
-            f.write(data + '\n')
+            if data != 'Thumb':
+                f.write(data + '\n')
 
 if __name__ == '__main__':
     root_path = 'D:/KITTI/training'
