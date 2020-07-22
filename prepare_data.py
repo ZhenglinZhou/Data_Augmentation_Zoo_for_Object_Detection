@@ -5,6 +5,7 @@ import skimage.color
 import xml.etree.ElementTree as ET
 import picture_visualization as pv
 import matplotlib.pyplot as plt
+import torch
 
 VOC_CLASSES = [
     "aeroplane",
@@ -28,11 +29,12 @@ VOC_CLASSES = [
     "train",
     "tvmonitor",
 ]
+
 class VocDataset:
     def __init__(self,
                  root_dir,
+                 image_set='train',         # train/val/test
                  years=['2007', '2012'],    # 默认2007+2012
-                 image_set='train',               # train/val/test
                  transform=None,
                  keep_difficult=False
                  ):
@@ -54,14 +56,10 @@ class VocDataset:
         self.ids = list()
         self.find_file_list()
 
-    def __getitem__(self, image_index): #sets: train/val/test
-        image_root_dir, img_idx = self.ids[image_index]
-        image_dir = os.path.join(image_root_dir,
-                                 'JPEGImages', img_idx + '.jpg')
-        anna_dir = os.path.join(image_root_dir,
-                                'Annotations', img_idx + '.xml')
-        img = self.load_image(image_dir)
-        annot = self.load_annotations(anna_dir)
+    def __getitem__(self, image_index):
+
+        img = self.load_image(image_index)
+        annot = self.load_annotations(image_index)
         sample = {'img':img, 'annot':annot}
         if self.transform:
             sample = self.transform(sample)
@@ -75,21 +73,26 @@ class VocDataset:
                 for line in open(file_path):
                     self.ids.append((root_path, line.strip()))
 
-    def load_image(self, image_path):
+    def load_image(self, image_index):
+        image_root_dir, img_idx = self.ids[image_index]
+        image_path = os.path.join(image_root_dir,
+                                 'JPEGImages', img_idx + '.jpg')
         img = skimage.io.imread(image_path)
         if len(img.shape) == 2:
             img = skimage.color.gray2rgb(img)
 
         return img.astype(np.float32)/255.0
 
-    def load_annotations(self, anna_path):
+    def load_annotations(self, image_index):
+        image_root_dir, img_idx = self.ids[image_index]
+        anna_path = os.path.join(image_root_dir,
+                                'Annotations', img_idx + '.xml')
         annotations = []
         target = ET.parse(anna_path).getroot()
         for obj in target.iter("object"):
             difficult = int(obj.find('difficult').text) == 1
             if not self.keep_difficult and difficult:
                 continue
-            name = obj.find('name').text.lower().strip()
             bbox = obj.find('bndbox')
 
             pts = ['xmin', 'ymin', 'xmax', 'ymax']
@@ -98,8 +101,8 @@ class VocDataset:
             for pt in pts:
                 cut_pt = bbox.find(pt).text
                 bndbox.append(cut_pt)
-            categray = obj.find('name').text.lower().strip()
-            label = self.name_2_label[categray]
+            name = obj.find('name').text.lower().strip()
+            label = self.name_2_label[name]
             bndbox.append(label)
             annotations += [bndbox]
         annotations = np.array(annotations)
@@ -139,7 +142,6 @@ class UnNormalizer(object):
             t.mul_(s).add_(m)
         return tensor
 
-
 def collater(data):
     imgs = [s['img'] for s in data]
     annots = [s['annot'] for s in data]
@@ -176,7 +178,6 @@ def collater(data):
 
     return {'img': padded_imgs, 'annot': annot_padded, 'scale': scales}
 
-
 class Resizer(object):
     """Convert ndarrays in sample to Tensors."""
 
@@ -211,7 +212,6 @@ class Resizer(object):
 
         return {'img': torch.from_numpy(new_image), 'annot': torch.from_numpy(annots), 'scale': scale}
 
-
 class AspectRatioBasedSampler():
     def __init__(self, data_source, batch_size):
         self.data_source = data_source
@@ -227,16 +227,10 @@ class AspectRatioBasedSampler():
 
 if __name__ == '__main__':
     root_dir = 'D:\VOC\VOCdevkit'
-    voc = VocDataset(root_dir)
-    sample = voc.__getitem__('train', 2)
+    voc = VocDataset(root_dir, 'train')
+    sample = voc.__getitem__(2)
     name = []
-    for i in range(len(sample['annot'])):
-        name.append(
-            voc.find_category_id_from_voc_label(
-                int(sample['annot'][i][4])
-            )
-        )
-    pv.visualization(sample, name)
+    # pv.visualization(sample)
     image = sample['img'][:, ::-1, :]
     fig = plt.imshow(image)
     plt.show()
