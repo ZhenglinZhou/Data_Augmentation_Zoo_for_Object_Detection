@@ -7,7 +7,8 @@ import xml.etree.ElementTree as ET
 import picture_visualization as pv
 import matplotlib.pyplot as plt
 import torch
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, Sampler
+import random
 
 VOC_CLASSES = [
     "aeroplane",
@@ -124,6 +125,10 @@ class VocDataset(Dataset):
         img = skimage.io.imread(image_path)
         return float(img.shape[1] / float(img.shape[0]))
 
+    def num_classes(self):
+        return 20
+
+
 class Normalizer(object):
     def __init__(self):
         self.mean = np.array([[[0.485, 0.456, 0.406]]])
@@ -220,10 +225,23 @@ class Resizer(object):
 
         return {'img': torch.from_numpy(new_image), 'annot': torch.from_numpy(annots), 'scale': scale}
 
-class AspectRatioBasedSampler():
-    def __init__(self, data_source, batch_size):
+class AspectRatioBasedSampler(Sampler):
+    def __init__(self, data_source, batch_size, drop_last):
         self.data_source = data_source
         self.batch_size = batch_size
+        self.drop_last = drop_last
+        self.groups = self.group_images()
+
+    def __iter__(self):
+        random.shuffle(self.groups)
+        for group in self.groups:
+            yield group
+
+    def __len__(self):
+        if self.drop_last:
+            return len(self.data_source) // self.batch_size
+        else:
+            return (len(self.data_source) + self.batch_size - 1) // self.batch_size
 
     def group_images(self):
         order = list(range(len(self.data_source)))
