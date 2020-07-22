@@ -2,10 +2,12 @@ import numpy as np
 import os
 import skimage.io
 import skimage.color
+import skimage.transform
 import xml.etree.ElementTree as ET
 import picture_visualization as pv
 import matplotlib.pyplot as plt
 import torch
+from torch.utils.data import Dataset
 
 VOC_CLASSES = [
     "aeroplane",
@@ -30,7 +32,7 @@ VOC_CLASSES = [
     "tvmonitor",
 ]
 
-class VocDataset:
+class VocDataset(Dataset):
     def __init__(self,
                  root_dir,
                  image_set='train',         # train/val/test
@@ -55,6 +57,9 @@ class VocDataset:
         }
         self.ids = list()
         self.find_file_list()
+
+    def __len__(self):
+        return len(self.ids)
 
     def __getitem__(self, image_index):
 
@@ -100,7 +105,7 @@ class VocDataset:
             bndbox = []
             for pt in pts:
                 cut_pt = bbox.find(pt).text
-                bndbox.append(cut_pt)
+                bndbox.append(float(cut_pt))
             name = obj.find('name').text.lower().strip()
             label = self.name_2_label[name]
             bndbox.append(label)

@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-from prepare_data import VocDataset
 
 colors = [
     (39, 129, 113),
