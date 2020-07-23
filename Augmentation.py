@@ -47,6 +47,7 @@ class autoaugmenter(object):
     def __call__(self, sample):
         image, annots = sample['img'], sample['annot']
         bboxes = annots[:, 0:4]
+
         image, bboxes = distort_image_with_autoaugment(image, bboxes, self.augmentation_name)
         annots[:, 0:4] = bboxes
 
