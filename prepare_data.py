@@ -162,8 +162,8 @@ class VocDataset(Dataset):
     def __getitem__(self, image_index):
 
         img = self.load_image(image_index)
-        annot = self.load_annotations(image_index)
-        sample = {'img':img, 'annot':annot}
+        annots = self.load_annotations(image_index)
+        sample = {'img':img, 'annot':annots}
         if self.transform:
             sample = self.transform(sample)
         return sample
@@ -227,7 +227,6 @@ class VocDataset(Dataset):
 
     def num_classes(self):
         return 20
-
 
 class Normalizer(object):
     def __init__(self):

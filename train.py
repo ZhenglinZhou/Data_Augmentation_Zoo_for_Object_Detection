@@ -8,16 +8,13 @@ import collections
 import torch.optim as optim
 from retinanet import model
 import numpy as np
-from utils import SplitKittiDataset
-
+from tools import SplitKittiDataset
+from config import epochs, voc_root_dir, kitti_root_dir
 
 from retinanet import csv_eval
 print('CUDA available: {}'.format(torch.cuda.is_available()))
 
 def main():
-    epochs = 100
-    voc_root_dir = 'D:\VOC\VOCdevkit'
-    kitti_root_dir = 'D:/KITTI/training'
     type = 1
 
     if type == 1:
@@ -31,7 +28,7 @@ def main():
                                        RetinaNet_Augmenter(),
                                        Resizer()]))
     elif type == 2:
-        SplitKittiDataset(kitti_root_dir, 0.5)
+        SplitKittiDataset(kitti_root_dir, 0.5)  # 分割KITTI数据集，50%训练集，50%测试集
         dataset_train = KittiDataset(kitti_root_dir, 'train', transform=transforms.Compose([
             Normalizer(),
             RetinaNet_Augmenter(),
