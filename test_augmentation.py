@@ -6,9 +6,9 @@ from picture_visualization import visualization
 from torchvision import transforms
 
 if __name__ == '__main__':
-    voc_train = VocDataset(voc_root_dir,
-                           'train', transform=transforms.Compose([Normalizer(),
-                                                                  autoaugmenter()]))
+    voc_train = VocDataset(voc_root_dir, 'train',
+                           transform=transforms.Compose([autoaugmenter()]))
+    # voc_train = VocDataset(voc_root_dir,'train')
     sample = voc_train[2]
     visualization(voc_train, sample)
     # sample = autoaugment(sample, 'v2')

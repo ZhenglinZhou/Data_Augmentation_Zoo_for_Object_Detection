@@ -124,3 +124,14 @@ def visualization(set, sample):
                       name, va='center', ha='center', fontsize=6, color='blue',
                       bbox=dict(facecolor='m'))
     plt.show()
+
+def easy_visualization(sample):
+    image, annots = sample['img'], sample['annot']
+    fig = plt.imshow(image)
+    for i in range(len(annots)):
+        annot = [int(x) for x in annots[i]]
+        label = annot[4]
+        color = [c/255.0 for c in colors[label]]
+        rect = bbox_to_rect(annot, color)
+        fig.axes.add_patch(rect)
+    plt.show()

@@ -805,7 +805,9 @@ def _rotate_bbox(bbox, image_height, image_width, degrees):
     min_y, min_x, max_y, max_x = _clip_bbox(min_y, min_x, max_y, max_x)
     min_y, min_x, max_y, max_x = _check_bbox_area(min_y, min_x, max_y, max_x)
 
-    return np.stack([min_y, min_x, max_y, max_x, bbox[4], bbox[5], bbox[6]])
+    # return np.stack([min_y, min_x, max_y, max_x, bbox[4], bbox[5], bbox[6]])
+    print(bbox.shape)
+    return np.stack([min_y, min_x, max_y, max_x])
 
 
 def rotate_with_bboxes(image, bboxes, degrees, replace):
@@ -901,8 +903,9 @@ def _shift_bbox(bbox, image_height, image_width, pixels, shift_horizontal):
     # Clip the bboxes to be sure the fall between [0, 1].
     min_y, min_x, max_y, max_x = _clip_bbox(min_y, min_x, max_y, max_x)
     min_y, min_x, max_y, max_x = _check_bbox_area(min_y, min_x, max_y, max_x)
-    return np.stack([min_y, min_x, max_y, max_x, bbox[4], bbox[5], bbox[6]])
-
+    # return np.stack([min_y, min_x, max_y, max_x, bbox[4], bbox[5], bbox[6]])
+    print(bbox.shape)
+    return np.stack([min_y, min_x, max_y, max_x])
 
 def translate_bbox(image, bboxes, pixels, replace, shift_horizontal):
     """Equivalent of PIL Translate in X/Y dimension that shifts image and bbox.
@@ -929,10 +932,12 @@ def translate_bbox(image, bboxes, pixels, replace, shift_horizontal):
     image_height = image.shape[0]
     image_width = image.shape[1]
     # pylint:disable=g-long-lambda
+
     wrapped_shift_bbox = lambda bbox: _shift_bbox(bbox, image_height, image_width, pixels, shift_horizontal)
+    print(wrapped_shift_bbox)
+    # 格式正确
     # pylint:enable=g-long-lambda
     bboxes = np.array([box for box in list(map(wrapped_shift_bbox, bboxes)) if box is not None])
-
     return image, bboxes
 
 
@@ -1013,10 +1018,13 @@ def _shear_bbox(bbox, image_height, image_width, level, shear_horizontal):
     # Clip the bboxes to be sure the fall between [0, 1].
     min_y, min_x, max_y, max_x = _clip_bbox(min_y, min_x, max_y, max_x)
     min_y, min_x, max_y, max_x = _check_bbox_area(min_y, min_x, max_y, max_x)
-    return np.stack([min_y, min_x, max_y, max_x, bbox[4], bbox[5], bbox[6]])
+    # return np.stack([min_y, min_x, max_y, max_x, bbox[4], bbox[5], bbox[6]])
+    print(bbox.shape)
+    return np.stack([min_y, min_x, max_y, max_x])
 
 
 def shear_with_bboxes(image, bboxes, level, replace, shear_horizontal):
+    print("shear_with_bboxes")
     """Applies Shear Transformation to the image and shifts the bboxes.
     Args:
       image: 3D uint8 Tensor.
@@ -1042,9 +1050,11 @@ def shear_with_bboxes(image, bboxes, level, replace, shear_horizontal):
     image_height = image.shape[0]
     image_width = image.shape[1]
     # pylint:disable=g-long-lambda
+
     wrapped_shear_bbox = lambda bbox: _shear_bbox(
         bbox, image_height, image_width, level, shear_horizontal)
     # pylint:enable=g-long-lambda
+    print("bboxes_size: ", bboxes.shape)
     bboxes = np.array([box for box in list(map(wrapped_shear_bbox, bboxes)) if box is not None])
     return image, bboxes
 
