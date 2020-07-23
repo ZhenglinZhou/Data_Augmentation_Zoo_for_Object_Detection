@@ -36,12 +36,12 @@ VOC_CLASSES = [
 KITTI_CLASSES = [
     'car',
     'van',
-    'Truck',
+    'truck',
     'pedestrian',
     'person_sitting',
     'cyclist',
     'tram',
-    'misc'
+    'misc',
 ]
 
 class KittiDataset(Dataset):

@@ -18,7 +18,7 @@ def main():
     epochs = 100
     voc_root_dir = 'D:\VOC\VOCdevkit'
     kitti_root_dir = 'D:/KITTI/training'
-    type = 2
+    type = 1
 
     if type == 1:
         dataset_train = VocDataset(voc_root_dir, 'train',transform=transforms.Compose([
