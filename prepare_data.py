@@ -350,7 +350,6 @@ class AspectRatioBasedSampler(Sampler):
         return [[order[x % len(order)] for x in range(i, i + self.batch_size)] for i in
                 range(0, len(order), self.batch_size)]
 
-
 if __name__ == '__main__':
     voc_root_dir = 'D:\VOC\VOCdevkit'
     kitti_root_dir = 'D:/KITTI/training'

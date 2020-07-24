@@ -5,7 +5,7 @@
 from prepare_data import KittiDataset, VocDataset, collater, Resizer, AspectRatioBasedSampler, Normalizer
 from torch.utils.data import DataLoader, SubsetRandomSampler
 import torch
-from Augmentation import retinanet_augmentater
+from Augmentation import Augmenter, mixup
 from torchvision import transforms
 from picture_visualization import visualization
 import collections
@@ -22,7 +22,7 @@ def main():
     use_mixup = config.use_mixup
     epochs = config.epochs
     transform = transforms.Compose([Normalizer(),
-                                    Augmentater(),
+                                    Augmenter(),
                                     Resizer()])
 
     if config.dataset_type == 1:
@@ -73,6 +73,7 @@ def main():
 
     print('Num training images: {}'.format(len(dataset_train)))
 
+
     for epoch_num in range(epochs):
 
         retinanet.train()
@@ -81,45 +82,72 @@ def main():
         epoch_loss = []
 
         for iter_num, data in enumerate(dataloader_train):
-            try:
-                optimizer.zero_grad()
+            # try:
+            optimizer.zero_grad()
 
-                if use_mixup:
-                    print("data.shape: ", data['img'].shape)
+            if use_mixup:
+                # data = data.numpy()
+                order = list(range(data['img'].shape[0]))
+                np.random.seed(36)
+                np.random.shuffle(order)
 
-                if torch.cuda.is_available():
-                    classification_loss, regression_loss = retinanet([data['img'].cuda().float(), data['annot']])
-                else:
-                    classification_loss, regression_loss = retinanet([data['img'].float(), data['annot']])
+                order = [[order[x % len(order)] for x in range(i, i + 2)] for i in
+                        range(0, len(order), 2)]
+                img = data['img'].numpy()
+                annot = data['img'].numpy()
+                for _order in order:
+                    sample1 = {'img':img[_order[0]], 'annot': annot[_order[0]]}
+                    sample2 = {'img':img[_order[1]], 'annot': annot[_order[1]]}
+                    mix_img, lam = mixup(sample1, sample2)
+                    new_img = torch.Tensor([mix_img, mix_img])
+                    new_annot = torch.Tensor([annot[_order[0]], annot[_order[1]]])
 
-                classification_loss = classification_loss.mean()
-                regression_loss = regression_loss.mean()
+                    new_data = {'img': new_img, 'annot': new_annot}
 
-                loss = classification_loss + regression_loss
+                    if torch.cuda.is_available():
+                        classification_loss, regression_loss = retinanet(
+                            [new_data['img'].cuda().float(), new_data['annot']])
+                    else:
+                        classification_loss, regression_loss = retinanet([new_data['img'].float(), new_data['annot']])
 
-                if bool(loss == 0):
-                    continue
+                    classification_loss = classification_loss.mean()
+                    regression_loss = regression_loss.mean()
+                    print(classification_loss.shape)
 
-                loss.backward()
 
-                torch.nn.utils.clip_grad_norm_(retinanet.parameters(), 0.1)
+            if torch.cuda.is_available():
+                classification_loss, regression_loss = retinanet([data['img'].cuda().float(), data['annot']])
+            else:
+                classification_loss, regression_loss = retinanet([data['img'].float(), data['annot']])
 
-                optimizer.step()
+            classification_loss = classification_loss.mean()
+            regression_loss = regression_loss.mean()
 
-                loss_hist.append(float(loss))
+            loss = classification_loss + regression_loss
 
-                epoch_loss.append(float(loss))
-
-                print(
-                    'Epoch: {} | Iteration: {} | Classification loss: {:1.5f} | Regression loss: {:1.5f} | Running loss: {:1.5f}'.format(
-                        epoch_num, iter_num, float(classification_loss), float(regression_loss), np.mean(loss_hist)))
-
-                del classification_loss
-                del regression_loss
-
-            except Exception as e:
-                print(e)
+            if bool(loss == 0):
                 continue
+
+            loss.backward()
+
+            torch.nn.utils.clip_grad_norm_(retinanet.parameters(), 0.1)
+
+            optimizer.step()
+
+            loss_hist.append(float(loss))
+
+            epoch_loss.append(float(loss))
+
+            print(
+                'Epoch: {} | Iteration: {} | Classification loss: {:1.5f} | Regression loss: {:1.5f} | Running loss: {:1.5f}'.format(
+                    epoch_num, iter_num, float(classification_loss), float(regression_loss), np.mean(loss_hist)))
+
+            del classification_loss
+            del regression_loss
+
+            # except Exception as e:
+            #     print(e)
+            #     continue
 
         """ validation part """
         print('Evaluating dataset')

@@ -88,23 +88,26 @@ class autoaugmenter(object):
         return sample
 
 
-class mixup(object):
-    def __init__(self):
-        self.alpha = config.alpha
-        self.lam = np.random.beta(self.alpha, self.alpha)
+def mixup(sample1, sample2):
 
-    def __call__(self, sample1, sample2):
-        img1, annots1 = sample1['img'], sample1['annot']
-        img2, annots2 = sample2['img'], sample2['annot']
-        height = max(img1.shape[0], img2.shape[0])
-        width = max(img1.shape[1], img2.shape[1])
-        mix_img = np.zeros(shape=(height, width, 3), dtype=np.float32)
-        mix_img[:img1.shape[0], :img1.shape[1], :] = img1.astype('float32') * self.lam
-        mix_img[:img2.shape[0], :img2.shape[1], :] += img2.astype('float32') * (1 - self.lam)
-        mix_img = mix_img.astype('int8')
-        sample1 = {'img' : mix_img, 'annot' : annots1, 'lam' : self.lam}
-        sample2 = {'img': mix_img, 'annot': annots2, 'lam': self.lam}
-        return sample1, sample2
+    """
+    input
+        img = [3, H, W]
+    output
+        img = [3, H, W]
+    """
+    alpha = config.alpha
+    lam = np.random.beta(alpha, alpha)
+
+    img1, annots1 = sample1['img'], sample1['annot']
+    img2, annots2 = sample2['img'], sample2['annot']
+    height = max(img1.shape[1], img2.shape[1])
+    width = max(img1.shape[2], img2.shape[2])
+    mix_img = np.zeros(shape=(3, height, width), dtype=np.float32)
+    mix_img[:, :img1.shape[1], :img1.shape[2]] = img1.astype('float32') * lam
+    mix_img[:, :img2.shape[1], :img2.shape[2]] += img2.astype('float32') * (1 - lam)
+    mix_img = mix_img.astype('int8')
+    return mix_img, lam
 
 
 
