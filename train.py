@@ -94,7 +94,7 @@ def main():
                 order = [[order[x % len(order)] for x in range(i, i + 2)] for i in
                         range(0, len(order), 2)]
                 img = data['img'].numpy()
-                annot = data['img'].numpy()
+                annot = data['annot'].numpy()
                 for _order in order:
                     sample1 = {'img':img[_order[0]], 'annot': annot[_order[0]]}
                     sample2 = {'img':img[_order[1]], 'annot': annot[_order[1]]}
@@ -109,41 +109,68 @@ def main():
                             [new_data['img'].cuda().float(), new_data['annot']])
                     else:
                         classification_loss, regression_loss = retinanet([new_data['img'].float(), new_data['annot']])
+                    print(classification_loss)
+                    print(regression_loss)
 
                     classification_loss = classification_loss.mean()
                     regression_loss = regression_loss.mean()
-                    print(classification_loss.shape)
 
 
-            if torch.cuda.is_available():
-                classification_loss, regression_loss = retinanet([data['img'].cuda().float(), data['annot']])
+                    classification_loss = classification_loss.mean()
+                    regression_loss = regression_loss.mean()
+
+                    loss = classification_loss + regression_loss
+
+                    if bool(loss == 0):
+                        continue
+
+                    loss.backward()
+
+                    torch.nn.utils.clip_grad_norm_(retinanet.parameters(), 0.1)
+
+                    optimizer.step()
+
+                    loss_hist.append(float(loss))
+
+                    epoch_loss.append(float(loss))
+
+                    print(
+                        'Epoch: {} | Iteration: {} | Classification loss: {:1.5f} | Regression loss: {:1.5f} | Running loss: {:1.5f}'.format(
+                            epoch_num, iter_num, float(classification_loss), float(regression_loss),
+                            np.mean(loss_hist)))
+
+                    del classification_loss
+                    del regression_loss
             else:
-                classification_loss, regression_loss = retinanet([data['img'].float(), data['annot']])
+                if torch.cuda.is_available():
+                    classification_loss, regression_loss = retinanet([data['img'].cuda().float(), data['annot']])
+                else:
+                    classification_loss, regression_loss = retinanet([data['img'].float(), data['annot']])
 
-            classification_loss = classification_loss.mean()
-            regression_loss = regression_loss.mean()
+                classification_loss = classification_loss.mean()
+                regression_loss = regression_loss.mean()
 
-            loss = classification_loss + regression_loss
+                loss = classification_loss + regression_loss
 
-            if bool(loss == 0):
-                continue
+                if bool(loss == 0):
+                    continue
 
-            loss.backward()
+                loss.backward()
 
-            torch.nn.utils.clip_grad_norm_(retinanet.parameters(), 0.1)
+                torch.nn.utils.clip_grad_norm_(retinanet.parameters(), 0.1)
 
-            optimizer.step()
+                optimizer.step()
 
-            loss_hist.append(float(loss))
+                loss_hist.append(float(loss))
 
-            epoch_loss.append(float(loss))
+                epoch_loss.append(float(loss))
 
-            print(
-                'Epoch: {} | Iteration: {} | Classification loss: {:1.5f} | Regression loss: {:1.5f} | Running loss: {:1.5f}'.format(
-                    epoch_num, iter_num, float(classification_loss), float(regression_loss), np.mean(loss_hist)))
+                print(
+                    'Epoch: {} | Iteration: {} | Classification loss: {:1.5f} | Regression loss: {:1.5f} | Running loss: {:1.5f}'.format(
+                        epoch_num, iter_num, float(classification_loss), float(regression_loss), np.mean(loss_hist)))
 
-            del classification_loss
-            del regression_loss
+                del classification_loss
+                del regression_loss
 
             # except Exception as e:
             #     print(e)
