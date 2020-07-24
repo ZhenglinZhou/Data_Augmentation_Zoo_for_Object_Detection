@@ -1,3 +1,4 @@
+import config
 import numpy as np
 from augmentation_zoo.autoaugment_utils import distort_image_with_autoaugment
 from picture_visualization import easy_visualization
@@ -84,4 +85,33 @@ class autoaugmenter(object):
 
         print(annots)
         sample = {'img': image, 'annot': annots}
+        return sample
+
+
+class mixup(object):
+    def __init__(self):
+        self.alpha = config.alpha
+        self.lam = np.random.beta(self.alpha, self.alpha)
+
+    def __call__(self, sample1, sample2):
+        img1, annots1 = sample1['img'], sample1['annot']
+        img2, annots2 = sample2['img'], sample2['annot']
+        height = max(img1.shape[0], img2.shape[0])
+        width = max(img1.shape[1], img2.shape[1])
+        mix_img = np.zeros(shape=(height, width, 3), dtype=np.float32)
+        mix_img[:img1.shape[0], :img1.shape[1], :] = img1.astype('float32') * self.lam
+        mix_img[:img2.shape[0], :img2.shape[1], :] += img2.astype('float32') * (1 - self.lam)
+        mix_img = mix_img.astype('int8')
+        sample1 = {'img' : mix_img, 'annot' : annots1, 'lam' : self.lam}
+        sample2 = {'img': mix_img, 'annot': annots2, 'lam': self.lam}
+        return sample1, sample2
+
+
+
+
+class Augmenter(object):
+
+    def __call__(self, sample):
+        # sample = retinanet_augmentater(sample)
+        # sample = autoaugmenter(sample)
         return sample

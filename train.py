@@ -1,7 +1,11 @@
+"""
+    author: zhenglin.zhou
+    date: 20200724
+"""
 from prepare_data import KittiDataset, VocDataset, collater, Resizer, AspectRatioBasedSampler, Normalizer
 from torch.utils.data import DataLoader, SubsetRandomSampler
 import torch
-from Augmentation import RetinaNet_Augmenter
+from Augmentation import retinanet_augmentater
 from torchvision import transforms
 from picture_visualization import visualization
 import collections
@@ -9,43 +13,40 @@ import torch.optim as optim
 from retinanet import model
 import numpy as np
 from tools import SplitKittiDataset
-from config import epochs, voc_root_dir, kitti_root_dir
-
 from retinanet import csv_eval
+import config
+
 print('CUDA available: {}'.format(torch.cuda.is_available()))
 
 def main():
-    type = 1
+    use_mixup = config.use_mixup
+    epochs = config.epochs
+    transform = transforms.Compose([Normalizer(),
+                                    Augmentater(),
+                                    Resizer()])
 
-    if type == 1:
-        dataset_train = VocDataset(voc_root_dir, 'train',transform=transforms.Compose([
-                                       Normalizer(),
-                                       RetinaNet_Augmenter(),
-                                       Resizer()]))
+    if config.dataset_type == 1:
+        root_dir = config.voc_root_dir
+        batch_size = config.voc_batch_size
+        dataset_train = VocDataset(root_dir, 'train', transform=transform)
 
-        dataset_val = VocDataset(voc_root_dir, 'val', transform=transforms.Compose([
-                                       Normalizer(),
-                                       RetinaNet_Augmenter(),
-                                       Resizer()]))
-    elif type == 2:
-        SplitKittiDataset(kitti_root_dir, 0.5)  # 分割KITTI数据集，50%训练集，50%测试集
-        dataset_train = KittiDataset(kitti_root_dir, 'train', transform=transforms.Compose([
-            Normalizer(),
-            RetinaNet_Augmenter(),
-            Resizer()]))
+        dataset_val = VocDataset(root_dir, 'val', transform=transform)
 
-        dataset_val = KittiDataset(kitti_root_dir, 'val', transform=transforms.Compose([
-            Normalizer(),
-            RetinaNet_Augmenter(),
-            Resizer()]))
+    elif config.dataset_type == 2:
+        root_dir = config.kitti_root_dir
+        batch_size = config.kitti_batch_size
+        SplitKittiDataset(root_dir, 0.5)  # 分割KITTI数据集，50%训练集，50%测试集
 
-    sampler = AspectRatioBasedSampler(dataset_train, batch_size=2, drop_last=False)
+        dataset_train = KittiDataset(root_dir, 'train', transform=transform)
+
+        dataset_val = KittiDataset(root_dir, 'val', transform=transform)
+
+    sampler = AspectRatioBasedSampler(dataset_train, batch_size=batch_size, drop_last=False)
     dataloader_train = DataLoader(dataset_train, num_workers=3,
                                   collate_fn=collater, batch_sampler=sampler)
-    sampler_val = AspectRatioBasedSampler(dataset_val, batch_size=2, drop_last=False)
+    sampler_val = AspectRatioBasedSampler(dataset_val, batch_size=batch_size, drop_last=False)
     dataloader_val = DataLoader(dataset_train, num_workers=3,
                                   collate_fn=collater, batch_sampler=sampler)
-
 
 
     retinanet = model.resnet18(num_classes=dataset_train.num_classes(), pretrained=True)
@@ -83,6 +84,9 @@ def main():
             try:
                 optimizer.zero_grad()
 
+                if use_mixup:
+                    print("data.shape: ", data['img'].shape)
+
                 if torch.cuda.is_available():
                     classification_loss, regression_loss = retinanet([data['img'].cuda().float(), data['annot']])
                 else:
@@ -112,6 +116,7 @@ def main():
 
                 del classification_loss
                 del regression_loss
+
             except Exception as e:
                 print(e)
                 continue
