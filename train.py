@@ -109,12 +109,10 @@ def main():
                             [new_data['img'].cuda().float(), new_data['annot']])
                     else:
                         classification_loss, regression_loss = retinanet([new_data['img'].float(), new_data['annot']])
-                    print(classification_loss)
-                    print(regression_loss)
-
-                    classification_loss = classification_loss.mean()
-                    regression_loss = regression_loss.mean()
-
+                    classification_loss_0, classification_loss_1 = classification_loss.chunk(2)
+                    regression_loss_0, regression_loss_1 = regression_loss.chunk(2)
+                    classification_loss = classification_loss_0 * lam + classification_loss_1 * (1 - lam)
+                    regression_loss = regression_loss_0 * lam + regression_loss_1 * (1 - lam)
 
                     classification_loss = classification_loss.mean()
                     regression_loss = regression_loss.mean()

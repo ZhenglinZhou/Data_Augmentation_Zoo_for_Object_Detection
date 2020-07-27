@@ -1,0 +1,4 @@
+RetinaNet + ResNet18
+
+VOC batch_size = 16
+KITTI batch_size = 32
