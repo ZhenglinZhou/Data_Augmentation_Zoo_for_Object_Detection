@@ -181,8 +181,7 @@ class VocDataset(Dataset):
         image_path = os.path.join(image_root_dir,
                                  'JPEGImages', img_idx + '.jpg')
         img = cv2.imread(image_path)
-        if len(img.shape) == 2:
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         return img.astype(np.float32)/255.0
 

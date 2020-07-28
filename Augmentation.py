@@ -1,6 +1,6 @@
 import config
 import numpy as np
-from augmentation_zoo.autoaugment_utils import distort_image_with_autoaugment
+from augmentation_zoo.Myautoaugment_utils import distort_image_with_autoaugment
 from picture_visualization import easy_visualization
 import torch
 
@@ -71,12 +71,18 @@ class autoaugmenter(object):
 
     def __call__(self, sample):
         image, annots = sample['img'], sample['annot']
-        easy_visualization(sample)
+        # easy_visualization(sample)
+
         annots = self.normalizer(image, annots)
         bboxes = annots[:, 0:4]
+
+        image =  np.uint8(image*255)
+
         image, bboxes = distort_image_with_autoaugment(image, bboxes, self.augmentation_name)
+
         annots[:, 0:4] = bboxes
         annots = self.unnormalizer(image, annots)
+        image = image.astype(np.float32)/255.0
 
         sample = {'img': image, 'annot': annots}
         easy_visualization(sample)
