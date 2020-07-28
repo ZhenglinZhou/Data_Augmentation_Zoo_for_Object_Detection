@@ -2,7 +2,7 @@ import numpy as np
 import os
 
 import xml.etree.ElementTree as ET
-import picture_visualization as pv
+from picture_visualization import easy_visualization
 import matplotlib.pyplot as plt
 import torch
 from torch.utils.data import Dataset, Sampler
@@ -300,7 +300,6 @@ class Resizer(object):
         image, annots = sample['img'], sample['annot']
 
         rows, cols, cns = image.shape
-
         smallest_side = min(rows, cols)
 
         # rescale the image so the smallest side is min_side
@@ -314,10 +313,15 @@ class Resizer(object):
             scale = max_side / largest_side
 
         # resize the image with the computed scale
-        image = cv2.resize(image, (int(round(rows * scale)), int(round((cols * scale)))))
+        """
+            image = [H * W * 3]
+            cv2.resize(image, (resize_W, resize_H))
+        """
+        image = cv2.resize(image, (int(round(cols * scale)), int(round((rows * scale)))))
+
         # image = skimage.transform.resize(image, (int(round(rows * scale)), int(round((cols * scale)))))
         rows, cols, cns = image.shape
-
+        print(rows, cols)
         pad_w = 32 - rows % 32
         pad_h = 32 - cols % 32
 

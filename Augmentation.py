@@ -49,43 +49,37 @@ class autoaugmenter(object):
 
     def normalizer(self, image, annots):
         h, w = image.shape[0], image.shape[1]
-
         ratio = np.array([w, h, w, h], dtype=int)
-        annots[:, 0:4] = annots[:, 0:4] / ratio
+        annots[:, :4] = annots[:, :4] / ratio
 
-        copy_annots = annots.copy()
-        annots[:,0], annots[:,1] = copy_annots[:,1], copy_annots[:,0]
-        annots[:,2], annots[:,3] = copy_annots[:,3], copy_annots[:,2]
+        # copy_annots = annots.copy()
+        # annots[:,0], annots[:,1] = copy_annots[:,1], copy_annots[:,0]
+        # annots[:,2], annots[:,3] = copy_annots[:,3], copy_annots[:,2]
         return annots
 
     def unnormalizer(self, image, annots):
         h, w = image.shape[0], image.shape[1]
 
         ratio = np.array([w, h, w, h], dtype=int)
-        annots[:, 0:4] = annots[:, 0:4] * ratio
+        annots[:, :4] = annots[:, :4] * ratio
 
-        copy_annots = annots.copy()
-        annots[:,0], annots[:,1] = copy_annots[:,1], copy_annots[:,0]
-        annots[:,2], annots[:,3] = copy_annots[:,3], copy_annots[:,2]
+        # copy_annots = annots.copy()
+        # annots[:,0], annots[:,1] = copy_annots[:,1], copy_annots[:,0]
+        # annots[:,2], annots[:,3] = copy_annots[:,3], copy_annots[:,2]
 
         return annots.astype(int)
 
     def __call__(self, sample):
         image, annots = sample['img'], sample['annot']
-        print(annots)
         easy_visualization(sample)
         annots = self.normalizer(image, annots)
         bboxes = annots[:, 0:4]
-        print(annots)
         image, bboxes = distort_image_with_autoaugment(image, bboxes, self.augmentation_name)
-
-
         annots[:, 0:4] = bboxes
         annots = self.unnormalizer(image, annots)
 
-
-        print(annots)
         sample = {'img': image, 'annot': annots}
+        easy_visualization(sample)
         return sample
 
 
@@ -130,6 +124,14 @@ def mixup(data):
     for _order in order:
         img1, img2 = img[_order[0]], img[_order[1]]
         mix_img, _lam = _mixup(img1, img2)
+        def permute_numpy(img):
+            print(img.shape)
+            img = torch.Tensor(img).permute(1, 2, 0)
+            return img.numpy()
+        easy_visualization({'img': permute_numpy(img1), 'annot': annot[_order[0]]})
+        easy_visualization({'img':permute_numpy(mix_img), 'annot': annot[_order[0]]})
+        easy_visualization({'img': permute_numpy(img2), 'annot': annot[_order[1]]})
+        easy_visualization({'img':permute_numpy(mix_img), 'annot': annot[_order[1]]})
         for i in range(2):
             new_img.append(mix_img)
         lam.append(_lam)
@@ -140,8 +142,6 @@ def mixup(data):
 def _mix_loss(loss, batch_size):
     new_loss = torch.stack([loss[i] + loss[i+1] for i in range(0, batch_size, 2)])
     return new_loss
-
-
 
 def mix_loss(cls_loss, reg_loss, lam):
     """
@@ -161,10 +161,7 @@ def mix_loss(cls_loss, reg_loss, lam):
     return cls_loss, reg_loss
 
 
-
 class Augmenter(object):
-
     def __call__(self, sample):
-        # sample = retinanet_augmentater(sample)
         # sample = autoaugmenter(sample)
         return sample

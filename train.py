@@ -1,13 +1,8 @@
-"""
-    author: zhenglin.zhou
-    date: 20200724
-"""
 from prepare_data import KittiDataset, VocDataset, collater, Resizer, AspectRatioBasedSampler, Normalizer
-from torch.utils.data import DataLoader, SubsetRandomSampler
+from torch.utils.data import DataLoader
 import torch
 from Augmentation import Augmenter, mixup, mix_loss
 from torchvision import transforms
-from picture_visualization import visualization
 import collections
 import torch.optim as optim
 from retinanet import model
@@ -16,6 +11,11 @@ from tools import SplitKittiDataset
 from retinanet import csv_eval
 import config
 import os
+
+"""
+    author: zhenglin.zhou
+    date: 20200724
+"""
 # os.environ["CUDA_VISIBLE_DEVICES"] = "6"
 
 print('CUDA available: {}'.format(torch.cuda.is_available()))
@@ -26,7 +26,7 @@ def main():
     transform = transforms.Compose([Normalizer(),
                                     Augmenter(),
                                     Resizer()])
-
+    # Resizer()
     if config.dataset_type == 1:
         root_dir = config.voc_root_dir
         batch_size = config.voc_batch_size
@@ -44,13 +44,13 @@ def main():
         dataset_val = KittiDataset(root_dir, 'val', transform=transform)
 
 
+
     sampler = AspectRatioBasedSampler(dataset_train, batch_size=batch_size, drop_last=False)
     dataloader_train = DataLoader(dataset_train, num_workers=3,
                                   collate_fn=collater, batch_sampler=sampler)
     sampler_val = AspectRatioBasedSampler(dataset_val, batch_size=batch_size, drop_last=False)
     dataloader_val = DataLoader(dataset_train, num_workers=3,
                                   collate_fn=collater, batch_sampler=sampler)
-
 
     retinanet = model.resnet18(num_classes=dataset_train.num_classes(), pretrained=True)
 
