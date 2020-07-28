@@ -2,14 +2,14 @@
     dataset_type = 1 => voc dataset
     dataset_type = 2 => kitti dataset
 """
-dataset_type = 1
+dataset_type = 2
 epochs = 100
 
 voc_root_dir = 'D:\VOC\VOCdevkit'
-voc_batch_size = 20
+voc_batch_size = 4
 
 kitti_root_dir = 'D:/KITTI/training'
-kitti_batch_size = 32
+kitti_batch_size = 4
 
 
 """

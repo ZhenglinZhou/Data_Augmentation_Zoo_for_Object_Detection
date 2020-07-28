@@ -285,7 +285,10 @@ def collater(data):
                     annot_padded[idx, :annot.shape[0], :] = annot
     else:
         annot_padded = torch.ones((len(annots), 1, 5)) * -1
-
+    """
+        output
+        img = [batch_size x 3 x W x H]
+    """
     padded_imgs = padded_imgs.permute(0, 3, 1, 2)
 
     return {'img': padded_imgs, 'annot': annot_padded, 'scale': scales}

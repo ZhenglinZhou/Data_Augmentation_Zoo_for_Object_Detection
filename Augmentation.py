@@ -2,6 +2,7 @@ import config
 import numpy as np
 from augmentation_zoo.autoaugment_utils import distort_image_with_autoaugment
 from picture_visualization import easy_visualization
+import torch
 
 class retinanet_augmentater(object):
     """Convert ndarrays in sample to Tensors."""
@@ -88,19 +89,17 @@ class autoaugmenter(object):
         return sample
 
 
-def mixup(sample1, sample2):
 
+def _mixup(img1, img2):
     """
     input
-        img = [3, H, W]
+        img = [3, W, H]
     output
-        img = [3, H, W]
+        img = [3, W, H]
     """
     alpha = config.alpha
     lam = np.random.beta(alpha, alpha)
 
-    img1, annots1 = sample1['img'], sample1['annot']
-    img2, annots2 = sample2['img'], sample2['annot']
     height = max(img1.shape[1], img2.shape[1])
     width = max(img1.shape[2], img2.shape[2])
     mix_img = np.zeros(shape=(3, height, width), dtype=np.float32)
@@ -109,6 +108,54 @@ def mixup(sample1, sample2):
     mix_img = mix_img.astype('int8')
     return mix_img, lam
 
+def mixup(data):
+    """
+    input
+        data = dict['img': img, 'annot': annot]
+    """
+    img = data['img'].numpy()
+    annot = data['annot']
+    batch_size = len(img)
+    new_img = []
+    lam = []
+    """
+        order = [(0,1), (2,3), (4,5), ...]
+        so that img[0] is same as img[1], 
+        img[2] is same as img[3], ..., 
+        which is the same mix img    
+    """
+    order = list(range(batch_size))
+    order = [[order[x % len(order)] for x in range(i, i + 2)] for i in
+             range(0, len(order), 2)]
+    for _order in order:
+        img1, img2 = img[_order[0]], img[_order[1]]
+        mix_img, _lam = _mixup(img1, img2)
+        for i in range(2):
+            new_img.append(mix_img)
+        lam.append(_lam)
+        lam.append(1 - _lam)
+    new_data = {'img': torch.Tensor(new_img), 'annot': annot}
+    return new_data, lam
+
+def _mix_loss(loss, batch_size):
+    new_loss = torch.stack([loss[i] + loss[i+1] for i in range(0, batch_size, 2)])
+    return new_loss
+
+
+
+def mix_loss(cls_loss, reg_loss, lam):
+    """
+    :param loss: len(cls_loss) = len(reg_loss) = batch_size
+    :param lam:  len(lam) = batch_size
+    :return: mix_loss
+    """
+    batch_size = len(lam)
+    lam = torch.Tensor(lam)
+    cls_loss = torch.mul(cls_loss, lam)
+    reg_loss = torch.mul(reg_loss, lam)
+    cls_loss = _mix_loss(cls_loss, batch_size)
+    reg_loss = _mix_loss(reg_loss, batch_size)
+    return cls_loss, reg_loss
 
 
 
