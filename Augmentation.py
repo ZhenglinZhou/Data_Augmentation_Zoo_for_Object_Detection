@@ -150,7 +150,10 @@ def mix_loss(cls_loss, reg_loss, lam):
     :return: mix_loss
     """
     batch_size = len(lam)
-    lam = torch.Tensor(lam)
+    if torch.cuda.is_available():
+        lam = torch.Tensor(lam).cuda().float()
+    else:
+        lam = torch.Tensor(lam).float()
     cls_loss = torch.mul(cls_loss, lam)
     reg_loss = torch.mul(reg_loss, lam)
     cls_loss = _mix_loss(cls_loss, batch_size)
