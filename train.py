@@ -1,7 +1,8 @@
 from prepare_data import KittiDataset, VocDataset, collater, Resizer, AspectRatioBasedSampler, Normalizer
 from torch.utils.data import DataLoader
 import torch
-from Augmentation import Augmenter, mixup, mix_loss
+from Augmentation import mixup, mix_loss, retinanet_augmentater
+from Augmentation import autoaugmenter as aa
 from torchvision import transforms
 import collections
 import torch.optim as optim
@@ -23,9 +24,10 @@ print('CUDA available: {}'.format(torch.cuda.is_available()))
 def main():
     use_mixup = config.use_mixup
     epochs = config.epochs
-    transform = transforms.Compose([Normalizer(),
-                                    Augmenter(),
+    transform = transforms.Compose([aa(),
                                     Resizer()])
+    # Normalizer(),
+    # autoaugmenter(),
     # Resizer()
     if config.dataset_type == 1:
         root_dir = config.voc_root_dir

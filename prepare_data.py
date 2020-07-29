@@ -1,9 +1,6 @@
 import numpy as np
 import os
-
 import xml.etree.ElementTree as ET
-from picture_visualization import easy_visualization
-import matplotlib.pyplot as plt
 import torch
 from torch.utils.data import Dataset, Sampler
 import random
@@ -202,7 +199,7 @@ class VocDataset(Dataset):
             bndbox = []
             for pt in pts:
                 cut_pt = bbox.find(pt).text
-                bndbox.append(float(cut_pt))
+                bndbox.append(np.int8(cut_pt))
             name = obj.find('name').text.lower().strip()
             label = self.name_2_label[name]
             bndbox.append(label)
@@ -320,14 +317,14 @@ class Resizer(object):
 
         # image = skimage.transform.resize(image, (int(round(rows * scale)), int(round((cols * scale)))))
         rows, cols, cns = image.shape
-        print(rows, cols)
         pad_w = 32 - rows % 32
         pad_h = 32 - cols % 32
 
         new_image = np.zeros((rows + pad_w, cols + pad_h, cns)).astype(np.float32)
         new_image[:rows, :cols, :] = image.astype(np.float32)
-
+        annots = annots.astype(np.float32)
         annots[:, :4] *= scale
+        annots = annots.astype(np.int8)
 
         return {'img': torch.from_numpy(new_image), 'annot': torch.from_numpy(annots), 'scale': scale}
 

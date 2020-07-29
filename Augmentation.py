@@ -45,7 +45,7 @@ class autoaugmenter(object):
     Returns:
       A tuple containing the augmented versions of `image` and `bboxes`.
     """
-    def __init__(self, augmentation_name = 'v2'):
+    def __init__(self, augmentation_name='v2'):
         self.augmentation_name = augmentation_name
 
     def normalizer(self, image, annots):
@@ -60,16 +60,13 @@ class autoaugmenter(object):
         ratio = np.array([w, h, w, h], dtype=int)
         annots[:, :4] = annots[:, :4] * ratio
 
-        return annots.astype(int)
+        return annots.astype(np.int8)
 
     def __call__(self, sample):
         image, annots = sample['img'], sample['annot']
-
-        easy_visualization(sample)
-
         annots = self.normalizer(image, annots)
         bboxes = annots[:, 0:4]
-        image =  np.uint8(image*255)
+        image = np.uint8(image*255)
 
         image, bboxes = distort_image_with_autoaugment(image, bboxes, self.augmentation_name)
 
@@ -78,7 +75,7 @@ class autoaugmenter(object):
         image = image.astype(np.float32)/255.0
 
         sample = {'img': image, 'annot': annots}
-        easy_visualization(sample)
+        # easy_visualization(sample)
         return sample
 
 
@@ -158,9 +155,3 @@ def mix_loss(cls_loss, reg_loss, lam):
     cls_loss = _mix_loss(cls_loss, batch_size)
     reg_loss = _mix_loss(reg_loss, batch_size)
     return cls_loss, reg_loss
-
-
-class Augmenter(object):
-    def __call__(self, sample):
-        # sample = autoaugmenter(sample)
-        return sample

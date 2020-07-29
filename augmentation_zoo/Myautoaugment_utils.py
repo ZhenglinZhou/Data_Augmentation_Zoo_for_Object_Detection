@@ -719,6 +719,11 @@ def _shear_bbox(bbox, image_height, image_width, level, shear_horizontal):
     coordinates = np.stack([[min_y, min_x], [min_y, max_x], [max_y, min_x], [max_y, max_x]])
     coordinates = coordinates.astype(np.float32)
     # Shear the coordinates according to the translation matrix.
+    """
+        ShearY:
+        y' = y - level * x
+        x' = x
+    """
     if shear_horizontal:
         translation_matrix = np.stack(
             [[1, 0], [-level, 1]])
@@ -1099,7 +1104,6 @@ def cutout_only_bboxes(image, bboxes, prob, pad_size, replace):
         image, bboxes, prob, cutout, func_changes_bbox, pad_size, replace)
 
 def flip(image, bboxes, prob, level):
-    print(bboxes)
     if np.random.rand() < prob:
         image = image[:, ::-1, :]
 
@@ -1125,9 +1129,8 @@ NAME_TO_FUNC = {
     'Cutout': cutout,
     'BBox_Cutout': bbox_cutout,
     'Flip': flip,
-
-    """  以下涉及bbox转换  """
     'Rotate_BBox': rotate_with_bboxes,
+    
     'TranslateX_BBox': lambda image, bboxes, pixels, replace: translate_bbox(image, bboxes, pixels, replace,
                                                                           shift_horizontal=True),
     'TranslateY_BBox': lambda image, bboxes, pixels, replace: translate_bbox(image, bboxes, pixels, replace,
@@ -1136,7 +1139,6 @@ NAME_TO_FUNC = {
                                                                            shear_horizontal=True),
     'ShearY_BBox': lambda image, bboxes, level, replace: shear_with_bboxes(image, bboxes, level, replace,
                                                                            shear_horizontal=False),
-    """   以下只改变bbox   """
     'TranslateX_Only_BBoxes': translate_x_only_bboxes,
     'TranslateY_Only_BBoxes': translate_y_only_bboxes,
     'Rotate_Only_BBoxes': rotate_only_bboxes,
@@ -1347,14 +1349,25 @@ def build_and_apply_nas_policy(policies, image, bboxes, augmentation_hparams):
     return (augmented_images, augmented_bboxes)
 
 def distort_image_with_autoaugment(image, bboxes, augmentation_name):
+    """
+        image: 输入图片需要是RGB图，且是0-255的整数，具体样式为：
+            0 ---------> x
+            |
+            |
+            |
+            v
+            y
+        bboxes: [xmin, ymin, xmax, ymax]
+        augmentation_name: 选择v0-3中的一个策略，等概率的选择策略中的一个sub_policy执行。
+                           或是选择test，将特定数据增强算法放在里面
+        添加新算法，除函数本身定义外，需在NAME_TO_FUNC、level_to_arg中对应添加。
+    """
     available_policies = {'v0': policy_v0, 'v1': policy_v1, 'v2': policy_v2,
                           'v3': policy_v3, 'test': policy_vtest,
                           'custom': policy_custom}
     if augmentation_name not in available_policies:
         raise ValueError('Invalid augmentation_name: {}'.format(augmentation_name))
-    """
-        选择一个策略v0-3，算法会等概率的选择其中的一个sub_policy执行。
-    """
+
     policy = available_policies[augmentation_name]()
 
     augmentation_hparams = {
