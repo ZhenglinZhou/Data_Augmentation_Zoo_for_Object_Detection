@@ -1,4 +1,6 @@
 import matplotlib.pyplot as plt
+from PIL import ImageDraw, Image
+import numpy as np
 
 colors = [
     (39, 129, 113),
@@ -135,3 +137,15 @@ def easy_visualization(sample):
         rect = bbox_to_rect(annot, color)
         fig.axes.add_patch(rect)
     plt.show()
+
+def rotate_visualzation(sample):
+    image, annots = sample['img'], sample['annot']
+    image = Image.fromarray(np.int8(image * 255))
+    draw = ImageDraw.Draw(image)
+    for annot in annots:
+        xmin, ymin, xmax, ymax = annot[0], annot[1], annot[2], annot[3]
+        draw.line([(xmin, ymin), (xmax, ymax)])
+        """
+            需要四个点，然后依次给五个点，形成一个闭合矩形
+        """
+    image.show()

@@ -364,7 +364,7 @@ if __name__ == '__main__':
     # pv.visualization(voc, sample)
     kitti = KittiDataset(kitti_root_dir)
     sample = kitti.__getitem__(10)
-    pv.visualization(kitti, sample)
+    # pv.visualization(kitti, sample)
     # image = sample['img'][:, ::-1, :]
     # fig = plt.imshow(image)
     # plt.show()
