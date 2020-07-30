@@ -2,15 +2,18 @@ from prepare_data import VocDataset, KittiDataset, Normalizer, Resizer
 from tools import SplitKittiDataset
 from Augmentation import autoaugmenter, retinanet_augmentater
 from config import voc_root_dir, kitti_root_dir
-from picture_visualization import visualization, easy_visualization
 from torchvision import transforms
 
 if __name__ == '__main__':
-    voc_train = VocDataset(voc_root_dir, 'train',
-                           transform=transforms.Compose([Normalizer(), autoaugmenter('v1'), Resizer()]))
-    for i in range(30):
-        sample = voc_train[i]
-    # visualization(voc_train, sample)
-    # sample = autoaugment(sample, 'v2')
-    # visualization(voc_train, sample)
+    # voc_train = VocDataset(voc_root_dir, 'train',
+    #                        transform=transforms.Compose([autoaugmenter('v1'), Resizer()]))
+
+    SplitKittiDataset(kitti_root_dir, 0.5)  # 分割KITTI数据集，50%训练集，50%测试集
+
+    kitti_train = KittiDataset(kitti_root_dir, 'train', transform=transforms.Compose([autoaugmenter('test')]))
+
+    sample = kitti_train[2]
+    # for i in range():
+    #     sample = kitti_train[i]
+
 

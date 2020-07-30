@@ -105,6 +105,8 @@ class KittiDataset(Dataset):
                     continue
                 else:
                     bndbox = [float(items[i+4]) for i in range(4)]
+                    if (bndbox[2] - bndbox[0]) <= 0 or (bndbox[3] - bndbox[1]) <= 0:
+                        continue
                     label = self.name_2_label[name]
                     bndbox.append(int(label))
                 annotations.append(bndbox)
@@ -199,7 +201,7 @@ class VocDataset(Dataset):
             bndbox = []
             for pt in pts:
                 cut_pt = bbox.find(pt).text
-                bndbox.append(np.int8(cut_pt))
+                bndbox.append(np.float32(cut_pt))
             name = obj.find('name').text.lower().strip()
             label = self.name_2_label[name]
             bndbox.append(label)

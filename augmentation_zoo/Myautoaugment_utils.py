@@ -135,9 +135,39 @@ def policy_v3():
     ]
     return policy
 
+"""
+    AutoContrast
+    Equalize
+    Posterize
+    Solarize
+    SolarizeAdd
+    Color
+    Contrast
+    Brightness
+    Sharpness
+    Cutout
+    BBox_Cutout
+    Flip
+    Rotate_BBox
+    TranslateX_BBox                                                    
+    TranslateY_BBox                                             
+    ShearX_BBox                                                          
+    ShearY_BBox                                                          
+    TranslateX_Only_BBoxes
+    TranslateY_Only_BBoxes
+    Rotate_Only_BBoxes
+    ShearX_Only_BBoxes
+    ShearY_Only_BBoxes
+    Flip_Only_BBoxes
+    Solarize_Only_BBoxes
+    Equalize_Only_BBoxes
+    Cutout_Only_BBoxes
+"""
+
 def policy_vtest():
+    """ (policy, pro, level)"""
     policy = [
-        [('Flip', 1, 10)],
+        [('BBox_Cutout', 1, 10) ],
     ]
     return policy
 
@@ -1132,9 +1162,9 @@ NAME_TO_FUNC = {
     'Rotate_BBox': rotate_with_bboxes,
     
     'TranslateX_BBox': lambda image, bboxes, pixels, replace: translate_bbox(image, bboxes, pixels, replace,
-                                                                          shift_horizontal=True),
+                                                                           shift_horizontal=True),
     'TranslateY_BBox': lambda image, bboxes, pixels, replace: translate_bbox(image, bboxes, pixels, replace,
-                                                                  shift_horizontal=False),
+                                                                           shift_horizontal=False),
     'ShearX_BBox': lambda image, bboxes, level, replace: shear_with_bboxes(image, bboxes, level, replace,
                                                                            shear_horizontal=True),
     'ShearY_BBox': lambda image, bboxes, level, replace: shear_with_bboxes(image, bboxes, level, replace,
@@ -1195,12 +1225,11 @@ def _bbox_cutout_level_to_arg(level, hparams):
     return (cutout_pad_fraction,
             hparams['cutout_bbox_replace_with_mean'])
 
-def _flip_level_to_arg(level,):
-    return (level,)
+
 
 def level_to_arg(hparams):
     return {
-        'Flip': _flip_level_to_arg,
+        'Flip': lambda level: (),
         'AutoContrast': lambda level: (),
         'Equalize': lambda level: (),
         'Posterize': lambda level: (int((level / _MAX_LEVEL) * 4),),
@@ -1257,13 +1286,11 @@ def _parse_policy_info(name, prob, level, replace_value, augmentation_hparams):
     # where we alter bboxes independently.
     # pytype:disable=wrong-arg-types
     if 'prob' in inspect.getfullargspec(func)[0]:
-        # if 'prob' in inspect.signature(func)[0]:
         args = tuple([prob] + list(args))
     # pytype:enable=wrong-arg-types
 
     # Add in replace arg if it is required for the function that is being called.
     if 'replace' in inspect.getfullargspec(func)[0]:
-        # Make sure replace is the final argument
         assert 'replace' == inspect.getfullargspec(func)[0][-1]
         args = tuple(list(args) + [replace_value])
 

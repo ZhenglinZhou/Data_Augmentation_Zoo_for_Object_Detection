@@ -1,7 +1,7 @@
 from prepare_data import KittiDataset, VocDataset, collater, Resizer, AspectRatioBasedSampler, Normalizer
 from torch.utils.data import DataLoader
 import torch
-from Augmentation import mixup, mix_loss, retinanet_augmentater,autoaugmenter
+from Augmentation import mixup, mix_loss, retinanet_augmentater, autoaugmenter
 from torchvision import transforms
 import collections
 import torch.optim as optim
@@ -16,18 +16,25 @@ import os
     author: zhenglin.zhou
     date: 20200724
 """
-# os.environ["CUDA_VISIBLE_DEVICES"] = "6"
+CUDA_DEVICES = config.CUDA_DEVICES
+os.environ["CUDA_VISIBLE_DEVICES"] = CUDA_DEVICES
 
 print('CUDA available: {}'.format(torch.cuda.is_available()))
 
 def main():
     use_mixup = config.use_mixup
     epochs = config.epochs
-    transform = transforms.Compose([autoaugmenter(),
-                                    Resizer()])
-    # Normalizer(),
-    # autoaugmenter(),
-    # Resizer()
+    if config.use_autoaugment:
+        transform = transforms.Compose([Normalizer(),
+                                        autoaugmenter(),
+                                        Resizer(),
+                                        ])
+    else:
+        transform = transforms.Compose([Normalizer(),
+                                        retinanet_augmentater('v1'),
+                                        Resizer(),
+                                        ])
+
     if config.dataset_type == 1:
         root_dir = config.voc_root_dir
         batch_size = config.voc_batch_size
@@ -132,10 +139,10 @@ def main():
         """ validation part """
         print('Evaluating dataset')
         mAP = csv_eval.evaluate(dataset_val, retinanet)
-        print("mAP: ", mAP)
+
         scheduler.step(np.mean(epoch_loss))
 
-        torch.save(retinanet.module, '{}_retinanet_{}.pt'.format('voc', epoch_num))
+        # torch.save(retinanet.module, '{}_retinanet_{}.pt'.format('voc', epoch_num))
 
     retinanet.eval()
 

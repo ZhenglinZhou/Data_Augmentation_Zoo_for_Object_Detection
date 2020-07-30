@@ -60,9 +60,10 @@ class autoaugmenter(object):
         ratio = np.array([w, h, w, h], dtype=int)
         annots[:, :4] = annots[:, :4] * ratio
 
-        return annots.astype(np.int8)
+        return annots.astype(np.float32)
 
     def __call__(self, sample):
+        # easy_visualization(sample)
         image, annots = sample['img'], sample['annot']
         annots = self.normalizer(image, annots)
         bboxes = annots[:, 0:4]
@@ -75,7 +76,7 @@ class autoaugmenter(object):
         image = image.astype(np.float32)/255.0
 
         sample = {'img': image, 'annot': annots}
-        # easy_visualization(sample)
+        easy_visualization(sample)
         return sample
 
 
