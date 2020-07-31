@@ -167,7 +167,7 @@ def policy_v3():
 def policy_vtest():
     """ (policy, pro, level)"""
     policy = [
-        [('BBox_Cutout', 1, 10) ],
+        [('TranslateX_BBox', 1, 10), ('BBox_Cutout', 1, 10)],
     ]
     return policy
 
@@ -243,8 +243,13 @@ def _check_bbox_area(min_y, min_x, max_y, max_x, delta=0.05):
 
     def _adjust_bbox_boundaries(min_coord, max_coord):
         # Make sure max is never 0 and min is never 1.
-        max_coord = max(max_coord, 0.0 + delta)
-        min_coord = max(min_coord, 1.0 - delta)
+        if min_coord == 0.0 and max_coord == 0.0:
+            max_coord = delta
+        elif min_coord == 1.0 and max_coord == 1.0:
+            min_coord = 1 - delta
+        else:
+            max_coord = max(max_coord + delta, 1.0)
+            min_coord = min(min_coord - delta, 0)
         return min_coord, max_coord
 
     if height == 0:
@@ -303,7 +308,8 @@ def _shift_bbox(bbox, image_height, image_width, pixels, shift_horizontal):
     # Clip the bboxes to be sure the fall between [0, 1].
     min_y, min_x, max_y, max_x = _clip_bbox(min_y, min_x, max_y, max_x)
     min_y, min_x, max_y, max_x = _check_bbox_area(min_y, min_x, max_y, max_x)
-    # return np.stack([min_y, min_x, max_y, max_x, bbox[4], bbox[5], bbox[6]])
+    if min_x > max_x or min_y > max_y:
+        print(min_x, min_y, max_x, max_y)
     return np.stack([min_x, min_y, max_x, max_y])
 
 def translate_bbox(image, bboxes, pixels, replace, shift_horizontal):
@@ -1009,7 +1015,6 @@ def _cutout_inside_bbox(image, bbox, pad_fraction):
     image_width = image.shape[1]
     # Transform from shape [1, 4] to [4].
     bbox = np.squeeze(bbox)
-
     min_x = (float(image_width) * bbox[0]).astype(np.int32)
     min_y = (float(image_height) * bbox[1]).astype(np.int32)
     max_x = (float(image_width) * bbox[2]).astype(np.int32)
@@ -1023,6 +1028,7 @@ def _cutout_inside_bbox(image, bbox, pad_fraction):
     # region lies entirely within the bbox.
     box_height = max_y - min_y + 1
     box_width = max_x - min_x + 1
+
     pad_size_height = (pad_fraction * (box_height / 2)).astype(np.int32)
     pad_size_width = (pad_fraction * (box_width / 2)).astype(np.int32)
 
@@ -1039,17 +1045,18 @@ def _cutout_inside_bbox(image, bbox, pad_fraction):
     right_pad = np.maximum(
         0, image_width - cutout_center_width - pad_size_width)
 
+
     cutout_shape = [image_height - (lower_pad + upper_pad),
                     image_width - (left_pad + right_pad)]
     padding_dims = [[lower_pad, upper_pad], [left_pad, right_pad]]
-
     mask = np.pad(
         np.zeros(cutout_shape, dtype=image.dtype),
         padding_dims, 'constant', constant_values=1)
-
-    mask = mask[..., np.newaxis]
+    """
+        mask：cutout区域等于0，其他区域等于1
+    """
+    mask = np.expand_dims(mask, axis=2)
     mask = np.tile(mask, [1, 1, 3])
-
     return mask, mean
 
 def bbox_cutout(image, bboxes, pad_fraction, replace_with_mean):
@@ -1160,7 +1167,7 @@ NAME_TO_FUNC = {
     'BBox_Cutout': bbox_cutout,
     'Flip': flip,
     'Rotate_BBox': rotate_with_bboxes,
-    
+
     'TranslateX_BBox': lambda image, bboxes, pixels, replace: translate_bbox(image, bboxes, pixels, replace,
                                                                            shift_horizontal=True),
     'TranslateY_BBox': lambda image, bboxes, pixels, replace: translate_bbox(image, bboxes, pixels, replace,
@@ -1227,6 +1234,14 @@ def _bbox_cutout_level_to_arg(level, hparams):
 
 
 
+def bbox_wrapper(func):
+    """Adds a bboxes function argument to func and returns unchanged bboxes."""
+
+    def wrapper(images, bboxes, *args, **kwargs):
+        return (func(images, *args, **kwargs), bboxes)
+
+    return wrapper
+
 def level_to_arg(hparams):
     return {
         'Flip': lambda level: (),
@@ -1268,14 +1283,6 @@ def level_to_arg(hparams):
             int((level / _MAX_LEVEL) * hparams['cutout_bbox_const']),),
         # pylint:enable=g-long-lambda
     }
-
-def bbox_wrapper(func):
-    """Adds a bboxes function argument to func and returns unchanged bboxes."""
-
-    def wrapper(images, bboxes, *args, **kwargs):
-        return (func(images, *args, **kwargs), bboxes)
-
-    return wrapper
 
 def _parse_policy_info(name, prob, level, replace_value, augmentation_hparams):
     """Return the function that corresponds to `name` and update `level` param."""

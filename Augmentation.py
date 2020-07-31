@@ -76,7 +76,7 @@ class autoaugmenter(object):
         image = image.astype(np.float32)/255.0
 
         sample = {'img': image, 'annot': annots}
-        easy_visualization(sample)
+        # easy_visualization(sample)
         return sample
 
 
