@@ -7,11 +7,10 @@ from torchvision import transforms
 if __name__ == '__main__':
     voc_train = VocDataset(voc_root_dir, 'train',
                            transform=transforms.Compose([autoaugmenter('test')]))
-    for i in range(voc_train.__len__()):
-        print(i)
-        sample = voc_train[i]
-    # sample = voc_train[11]
-    # sample = voc_train[9]
+    # for i in range(voc_train.__len__()):
+    #     print(i)
+    #     sample = voc_train[i]
+    sample = voc_train[11]
     # SplitKittiDataset(kitti_root_dir, 0.5)  # 分割KITTI数据集，50%训练集，50%测试集
     #
     # kitti_train = KittiDataset(kitti_root_dir, 'train', transform=transforms.Compose([autoaugmenter('test')]))

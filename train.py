@@ -16,8 +16,8 @@ import os
     author: zhenglin.zhou
     date: 20200724
 """
-CUDA_DEVICES = config.CUDA_DEVICES
-os.environ["CUDA_VISIBLE_DEVICES"] = CUDA_DEVICES
+# CUDA_DEVICES = config.CUDA_DEVICES
+# os.environ["CUDA_VISIBLE_DEVICES"] = CUDA_DEVICES
 
 print('CUDA available: {}'.format(torch.cuda.is_available()))
 
@@ -26,12 +26,12 @@ def main():
     epochs = config.epochs
     if config.use_autoaugment:
         transform = transforms.Compose([Normalizer(),
-                                        autoaugmenter(),
+                                        autoaugmenter('v1'),
                                         Resizer(),
                                         ])
     else:
         transform = transforms.Compose([Normalizer(),
-                                        retinanet_augmentater('v1'),
+                                        retinanet_augmentater(),
                                         Resizer(),
                                         ])
 
@@ -55,9 +55,6 @@ def main():
 
     sampler = AspectRatioBasedSampler(dataset_train, batch_size=batch_size, drop_last=False)
     dataloader_train = DataLoader(dataset_train, num_workers=3,
-                                  collate_fn=collater, batch_sampler=sampler)
-    sampler_val = AspectRatioBasedSampler(dataset_val, batch_size=batch_size, drop_last=False)
-    dataloader_val = DataLoader(dataset_train, num_workers=3,
                                   collate_fn=collater, batch_sampler=sampler)
 
     retinanet = model.resnet18(num_classes=dataset_train.num_classes(), pretrained=True)
