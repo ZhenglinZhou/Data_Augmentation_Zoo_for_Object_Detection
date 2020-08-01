@@ -16,40 +16,39 @@ import os
     author: zhenglin.zhou
     date: 20200724
 """
-# CUDA_DEVICES = config.CUDA_DEVICES
-# os.environ["CUDA_VISIBLE_DEVICES"] = CUDA_DEVICES
+CUDA_DEVICES = config.CUDA_DEVICES
+os.environ["CUDA_VISIBLE_DEVICES"] = CUDA_DEVICES
 
 print('CUDA available: {}'.format(torch.cuda.is_available()))
 
 def main():
     use_mixup = config.use_mixup
     epochs = config.epochs
-    if config.use_autoaugment:
-        transform = transforms.Compose([Normalizer(),
-                                        autoaugmenter('v1'),
+    if config.augment_type == 2:
+        transform = transforms.Compose([autoaugmenter('v1'),
+                                        Normalizer(),
+                                        Resizer(),
+                                        ])
+    elif config.augment_type == 1:
+        transform = transforms.Compose([retinanet_augmentater(),
+                                        Normalizer(),
                                         Resizer(),
                                         ])
     else:
         transform = transforms.Compose([Normalizer(),
-                                        retinanet_augmentater(),
                                         Resizer(),
                                         ])
 
     if config.dataset_type == 1:
-        root_dir = config.voc_root_dir
         batch_size = config.voc_batch_size
-        dataset_train = VocDataset(root_dir, 'train', transform=transform)
-
-        dataset_val = VocDataset(root_dir, 'val', transform=transform)
-
+        dataset_train = VocDataset(config.voc_root_dir, 'train', transform=transform)
+        dataset_val = VocDataset(config.voc_root_dir, 'val', transform=transforms.Compose([Normalizer(), Resizer()]))
     elif config.dataset_type == 2:
         root_dir = config.kitti_root_dir
         batch_size = config.kitti_batch_size
         SplitKittiDataset(root_dir, 0.5)  # 分割KITTI数据集，50%训练集，50%测试集
-
         dataset_train = KittiDataset(root_dir, 'train', transform=transform)
-
-        dataset_val = KittiDataset(root_dir, 'val', transform=transform)
+        dataset_val = KittiDataset(root_dir, 'val', transform=transforms.Compose([Normalizer(), Resizer()]))
 
 
 
@@ -139,7 +138,7 @@ def main():
 
         scheduler.step(np.mean(epoch_loss))
 
-        # torch.save(retinanet.module, '{}_retinanet_{}.pt'.format('voc', epoch_num))
+        # torch.save(retinanet.module, '{}_retinanet_{}.pt'.format('voc', epoch_num)))
 
     retinanet.eval()
 

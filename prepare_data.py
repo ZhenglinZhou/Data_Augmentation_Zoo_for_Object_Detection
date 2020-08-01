@@ -155,6 +155,7 @@ class VocDataset(Dataset):
         self.ids = list()
         self.find_file_list()
 
+
     def __len__(self):
         return len(self.ids)
 
@@ -326,9 +327,10 @@ class Resizer(object):
 
         new_image = np.zeros((rows + pad_w, cols + pad_h, cns)).astype(np.float32)
         new_image[:rows, :cols, :] = image.astype(np.float32)
+
         annots = annots.astype(np.float32)
         annots[:, :4] *= scale
-        annots = annots.astype(np.int8)
+        annots = annots.astype(np.int)
 
         return {'img': torch.from_numpy(new_image), 'annot': torch.from_numpy(annots), 'scale': scale}
 
@@ -357,17 +359,5 @@ class AspectRatioBasedSampler(Sampler):
         return [[order[x % len(order)] for x in range(i, i + self.batch_size)] for i in
                 range(0, len(order), self.batch_size)]
 
-if __name__ == '__main__':
-    voc_root_dir = 'D:\VOC\VOCdevkit'
-    kitti_root_dir = 'D:/KITTI/training'
-    # voc = VocDataset(voc_root_dir, 'train')
-    # sample = voc.__getitem__(2)
-    # pv.visualization(voc, sample)
-    kitti = KittiDataset(kitti_root_dir)
-    sample = kitti.__getitem__(10)
-    # pv.visualization(kitti, sample)
-    # image = sample['img'][:, ::-1, :]
-    # fig = plt.imshow(image)
-    # plt.show()
 
 

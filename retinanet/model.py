@@ -153,6 +153,7 @@ class ClassificationModel(nn.Module):
 
 
 class ResNet(nn.Module):
+
     def __init__(self, num_classes, block, layers):
         self.inplanes = 64
         super(ResNet, self).__init__()
@@ -350,5 +351,3 @@ def resnet152(num_classes, pretrained=False, **kwargs):
     if pretrained:
         model.load_state_dict(model_zoo.load_url(model_urls['resnet152'], model_dir='.'), strict=False)
     return model
-
-

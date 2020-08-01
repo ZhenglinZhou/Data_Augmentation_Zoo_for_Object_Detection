@@ -1,7 +1,7 @@
 import config
 import numpy as np
 from augmentation_zoo.Myautoaugment_utils import distort_image_with_autoaugment
-from picture_visualization import easy_visualization
+from tools import easy_visualization
 import torch
 import matplotlib.pyplot as plt
 
