@@ -237,6 +237,7 @@ def evaluate(
         label_name = generator.label_to_name(label)
         print('{}: {}'.format(label_name, average_precisions[label][0]))
         sum.append(average_precisions[label][0])
-    print("mAP: ", np.mean(sum))
-    return average_precisions
+    mAP = np.mean(sum)
+    print("mAP: ", mAP)
+    return average_precisions, mAP
 

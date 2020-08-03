@@ -1,33 +1,39 @@
 """
-    dataset_type = 1 => voc dataset
-    dataset_type = 2 => kitti dataset
+    DATASET_TYPE = 1 => voc dataset
+    DATASET_TYPE = 2 => kitti dataset
 """
-dataset_type = 1
-epochs = 100
+DATASET_TYPE = 1
+EPOCHS = 100
 CUDA_DEVICES = '6'
 
-voc_batch_size = 12
-kitti_batch_size = 32
+VOC_BATCH_SIZE = 8
+KITTI_BATCH_SIZE = 24
 
 
-# voc_root_dir = '/home/CN/zhenglin.zhou/Documents/VOC/VOCdevkit/'
-# kitti_root_dir = '/home/CN/zhenglin.zhou/Documents/Kitti/training/'
+# VOC_ROOT_DIR = '/home/CN/zhenglin.zhou/Documents/VOC/VOCdevkit/'
+# KITTI_ROOT_DIR = '/home/CN/zhenglin.zhou/Documents/Kitti/training/'
 
-voc_root_dir = 'D:/VOC/VOCdevkit'
-kitti_root_dir = 'D:/KITTI/training'
+VOC_ROOT_DIR = 'D:/VOC/VOCdevkit'
+KITTI_ROOT_DIR = 'D:/KITTI/training'
 
-"""    Mixup    """
-use_mixup = 0
-alpha = 1
+"""   RANDOM FLIP   """
+RANDOM_FLIP = True
 
-"""    Autoaugment     """
-use_autoaugment = 0
+"""    AUTOAUGMENT    """
+AUTOAUGMENT = False
 
-"""   Mixup   """
-
-GRID_GRID = False
+"""   GRIDMASK   """
+GRID = False
 GRID_ROTATE = 1
 GRID_OFFSET = 0
 GRID_RATIO = 0.5
 GRID_MODE = 1
 GRID_PROB = 0.5
+
+"""    MIXUP    """
+MIXUP = False
+MIXUP_ALPHA = 1
+
+
+
+

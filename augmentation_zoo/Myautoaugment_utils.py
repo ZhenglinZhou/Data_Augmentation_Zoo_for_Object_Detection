@@ -1384,7 +1384,7 @@ def build_and_apply_nas_policy(policies, image, bboxes, augmentation_hparams):
 
 def distort_image_with_autoaugment(image, bboxes, augmentation_name):
     """
-        image: 输入图片需要是RGB图，且是0-255的整数，具体样式为：
+        image: 输入图片需要是RGB图，且是0-255的整数，具体样式为：[height, width, 3]
             0 ---------> x
             |
             |

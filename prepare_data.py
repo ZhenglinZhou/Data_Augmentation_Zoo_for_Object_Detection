@@ -163,7 +163,7 @@ class VocDataset(Dataset):
 
         img = self.load_image(image_index)
         annots = self.load_annotations(image_index)
-        sample = {'img':img, 'annot':annots}
+        sample = {'img': img, 'annot': annots}
         if self.transform:
             sample = self.transform(sample)
         return sample
