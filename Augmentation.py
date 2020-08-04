@@ -5,7 +5,7 @@ from tools import easy_visualization
 import torch
 import matplotlib.pyplot as plt
 
-class retinanet_augmentater(object):
+class RandomFlip(object):
     """Convert ndarrays in sample to Tensors."""
     def __init__(self, flip_x=0.5):
         self.flip_x = flip_x
@@ -29,7 +29,7 @@ class retinanet_augmentater(object):
 
         return sample
 
-class autoaugmenter(object):
+class AutoAugmenter(object):
     """Applies the AutoAugment policy to `image` and `bboxes`.
     Args:
       image: `Tensor` of shape [height, width, 3] representing an image.
@@ -63,7 +63,6 @@ class autoaugmenter(object):
         return annots.astype(np.float32)
 
     def __call__(self, sample):
-        # easy_visualization(sample)
         image, annots = sample['img'], sample['annot']
         annots = self.normalizer(image, annots)
         bboxes = annots[:, 0:4]
@@ -76,7 +75,6 @@ class autoaugmenter(object):
         image = image.astype(np.float32)/255.0
 
         sample = {'img': image, 'annot': annots}
-        easy_visualization(sample)
         return sample
 
 

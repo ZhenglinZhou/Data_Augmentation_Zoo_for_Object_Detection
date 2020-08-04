@@ -2,7 +2,7 @@ import numpy as np
 from PIL import Image
 
 
-class Grid(object):
+class GridMask(object):
     def __init__(self, use_h, use_w, rotate=1, offset=False, ratio=0.5, mode=0, prob=1.):
         self.use_h = use_h
         self.use_w = use_w

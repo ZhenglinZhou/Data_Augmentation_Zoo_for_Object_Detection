@@ -1,7 +1,7 @@
 from prepare_data import KittiDataset, VocDataset, collater, Resizer, AspectRatioBasedSampler, Normalizer
 from torch.utils.data import DataLoader
 import torch
-from Augmentation import mixup, mix_loss, retinanet_augmentater, autoaugmenter
+from Augmentation import mixup, mix_loss, RandomFlip, AutoAugmenter
 from torchvision import transforms
 import collections
 import torch.optim as optim
@@ -11,7 +11,8 @@ from tools import SplitKittiDataset
 from retinanet import csv_eval
 import config as cfg
 import os
-from augmentation_zoo.grid_official import Grid
+from augmentation_zoo.MyGridMask import GridMask
+from augmentation_zoo.SmallObjectAugmentation import SmallObjectAugmentation
 """
     author: zhenglin.zhou
     date: 20200724
@@ -24,11 +25,13 @@ print('CUDA available: {}'.format(torch.cuda.is_available()))
 def _make_transform():
     transform_list = list()
     if cfg.AUTOAUGMENT:
-        transform_list.append(autoaugmenter('v1'))
+        transform_list.append(AutoAugmenter(cfg.AUTO_POLICY))
     if cfg.GRID:
-        transform_list.append(Grid(True, True, cfg.GRID_ROTATE,cfg.GRID_OFFSET,cfg.GRID_RATIO,cfg.GRID_MODE,cfg.GRID_PROB))
+        transform_list.append(GridMask(True, True, cfg.GRID_ROTATE,cfg.GRID_OFFSET,cfg.GRID_RATIO,cfg.GRID_MODE,cfg.GRID_PROB))
     if cfg.RANDOM_FLIP:
-        transform_list.append(retinanet_augmentater())
+        transform_list.append(RandomFlip())
+    if cfg.SMALL_OBJECT_AUGMENTATION:
+        transform_list.append(SmallObjectAugmentation(cfg.SOA_THRESH, cfg.SOA_PROB, cfg.SOA_COPY_TIMES, cfg.SOA_ALL_OBJECTS, cfg.SOA_ONE_OBJECT))
     transform_list.append(Normalizer())
     transform_list.append(Resizer())
     return transform_list

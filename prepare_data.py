@@ -139,6 +139,7 @@ class VocDataset(Dataset):
                  ):
         self.root_dir = root_dir
         self.years = years
+
         self.image_set = image_set
         self.transform = transform
         self.keep_difficult = keep_difficult
