@@ -51,8 +51,7 @@ class SmallObjectAugmentation(object):
                                  np.random.randint(int(annot_h / 2), int(h - annot_h / 2))
             xmin, ymin = random_x - annot_w / 2, random_y - annot_h / 2
             xmax, ymax = xmin + annot_w, ymin + annot_h
-            if np.int(xmin) < 0 or np.floor(xmax) > w or \
-                    np.int(ymin) < 0 or np.floor(ymax) > h:
+            if xmin < 0 or xmax > w or ymin < 0 or ymax > h:
                 continue
             new_annot = np.array([xmin, ymin, xmax, ymax, annot[4]]).astype(np.int)
 

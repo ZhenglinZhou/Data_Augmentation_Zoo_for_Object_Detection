@@ -26,17 +26,17 @@ if __name__ == '__main__':
     voc_train = VocDataset(VOC_ROOT_DIR, 'train', transform=transforms.Compose(transform_list))
     kitti_train = KittiDataset(KITTI_ROOT_DIR, 'train', transforms.Compose(transform_list))
 
-    # for i in range(voc_train.__len__()):
-    #     print(i)
-    #     sample = voc_train[i]
-    #     easy_visualization(sample)
+    for i in range(voc_train.__len__()):
+        print(i)
+        sample = voc_train[i]
+        # easy_visualization(sample)
 
     # sample = voc_train[19]
     # easy_visualization(sample)
 
-    for i in range(kitti_train.__len__()):
-        sample = kitti_train[i]
-        easy_visualization(sample)
+    # for i in range(kitti_train.__len__()):
+    #     sample = kitti_train[i]
+    #     easy_visualization(sample)
 
     # sample = kitti_train[0]
     # easy_visualization(sample)
