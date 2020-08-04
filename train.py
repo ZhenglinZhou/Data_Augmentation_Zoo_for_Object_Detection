@@ -31,7 +31,7 @@ def _make_transform():
     if cfg.RANDOM_FLIP:
         transform_list.append(RandomFlip())
     if cfg.SMALL_OBJECT_AUGMENTATION:
-        transform_list.append(SmallObjectAugmentation(cfg.SOA_THRESH, cfg.SOA_PROB, cfg.SOA_COPY_TIMES, cfg.SOA_ALL_OBJECTS, cfg.SOA_ONE_OBJECT))
+        transform_list.append(SmallObjectAugmentation(cfg.SOA_THRESH, cfg.SOA_PROB, cfg.SOA_COPY_TIMES, cfg.SOA_EPOCHS, cfg.SOA_ALL_OBJECTS, cfg.SOA_ONE_OBJECT))
     transform_list.append(Normalizer())
     transform_list.append(Resizer())
     return transform_list

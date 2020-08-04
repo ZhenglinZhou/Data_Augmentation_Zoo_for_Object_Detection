@@ -12,6 +12,7 @@ class GridMask(object):
         self.mode = mode
         self.st_prob = prob
         self.prob = prob
+
     def set_prob(self, epoch, max_epoch):
         self.prob = self.st_prob * epoch / max_epoch
 
