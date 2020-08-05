@@ -146,3 +146,9 @@ I use the RetinaNet with ResNet-18, testing in VOC and KITTI. VOC_BATCH_SIZE = 8
 | -------- | --------------- | ----------- | ------------------- | ------------------- | -------- | ------------------------- |
 |    VOC   |                 |   0.63738   |       0.63651       |                     |          |                           | 
 |   KITTI  |     0.60375     |   0.63077   |       0.58631       |                     |  0.71868 |                           |
+
+## My Contributions
+1. Realized the data preprocessing of VOC and KITTI in VocDataset/KittiDataset, prepare_data.py, which could be used by modifying the file path in config.py
+2. Realized Augmentation for small object Detection
+3. Modified the code of other papers and adjusted it to Numpy format
+4. Tested these methods on data sets VOC and KITTI
