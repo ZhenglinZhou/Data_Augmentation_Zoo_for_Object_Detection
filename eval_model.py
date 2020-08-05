@@ -1,7 +1,7 @@
 import torch
 from retinanet import model
 from prepare_data import VocDataset, Normalizer, Resizer, AspectRatioBasedSampler, UnNormalizer, collater
-from Augmentation import autoaugmenter
+from Augmentation import AutoAugmenter
 from torchvision import transforms
 import config
 from retinanet import csv_eval

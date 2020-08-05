@@ -1,8 +1,6 @@
 import numpy as np
 import inspect
 from PIL import Image, ImageOps, ImageEnhance
-import cv2
-import matplotlib.pyplot as plt
 import math
 import random
 
@@ -135,6 +133,16 @@ def policy_v3():
     ]
     return policy
 
+def policy_v4():
+    policy = [
+        [('TranslateX_BBox', 0.6, 4), ('Equalize', 0.8, 10)],
+        [('TranslateY_Only_BBoxes', 0.2, 2), ('Cutout', 0.8, 8)],
+        [('ShearY_BBox', 1.0, 2), ('TranslateY_Only_BBoxes', 0.6, 6)],
+        [('Rotate_BBox', 0.6, 10), ('Color', 1.0, 6)],
+        []
+    ]
+    return policy
+
 """
     AutoContrast
     Equalize
@@ -164,10 +172,11 @@ def policy_v3():
     Cutout_Only_BBoxes
 """
 
+
 def policy_vtest():
     """ (policy, pro, level)"""
     policy = [
-        [('TranslateX_BBox', 1, 10), ('BBox_Cutout', 1, 10)],
+        [('Flip', 1, 10)],
     ]
     return policy
 
@@ -1140,7 +1149,7 @@ def cutout_only_bboxes(image, bboxes, prob, pad_size, replace):
     return _apply_multi_bbox_augmentation_wrapper(
         image, bboxes, prob, cutout, func_changes_bbox, pad_size, replace)
 
-def flip(image, bboxes, prob, level):
+def flip(image, bboxes, prob):
     if np.random.rand() < prob:
         image = image[:, ::-1, :]
 
@@ -1397,7 +1406,7 @@ def distort_image_with_autoaugment(image, bboxes, augmentation_name):
         添加新算法，除函数本身定义外，需在NAME_TO_FUNC、level_to_arg中对应添加。
     """
     available_policies = {'v0': policy_v0, 'v1': policy_v1, 'v2': policy_v2,
-                          'v3': policy_v3, 'test': policy_vtest,
+                          'v3': policy_v3, 'v4': policy_v4, 'test': policy_vtest,
                           'custom': policy_custom}
     if augmentation_name not in available_policies:
         raise ValueError('Invalid augmentation_name: {}'.format(augmentation_name))

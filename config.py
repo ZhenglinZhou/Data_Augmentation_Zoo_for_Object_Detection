@@ -21,7 +21,7 @@ RANDOM_FLIP = False
 
 """    AUTOAUGMENT    """
 AUTOAUGMENT = False
-AUTO_POLICY = 'v1'
+AUTO_POLICY = 'v4'
 
 """   GRIDMASK   """
 GRID = False
@@ -38,7 +38,7 @@ SOA_PROB = 1
 SOA_COPY_TIMES = 3
 SOA_EPOCHS = 30
 SOA_ONE_OBJECT = False
-SOA_ALL_OBJECTS = True
+SOA_ALL_OBJECTS = False
 
 """    MIXUP    """
 MIXUP = False

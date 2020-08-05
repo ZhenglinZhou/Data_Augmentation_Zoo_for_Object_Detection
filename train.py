@@ -135,8 +135,8 @@ def main():
     retinanet.eval()
 
     print('\nBest_mAP:', BEST_MAP_EPOCH)
-    for label in range(retinanet.num_classes()):
-        label_name = retinanet.label_to_name(label)
+    for label in range(dataset_val.num_classes()):
+        label_name = dataset_val.label_to_name(label)
         print('{}: {}'.format(label_name, best_average_precisions[label][0]))
     print('BEST MAP: ', BEST_MAP)
     # torch.save(retinanet, 'model_final.pt')

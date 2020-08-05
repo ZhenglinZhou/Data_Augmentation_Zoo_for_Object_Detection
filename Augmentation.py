@@ -45,7 +45,7 @@ class AutoAugmenter(object):
     Returns:
       A tuple containing the augmented versions of `image` and `bboxes`.
     """
-    def __init__(self, augmentation_name='v2'):
+    def __init__(self, augmentation_name='v4'):
         self.augmentation_name = augmentation_name
 
     def normalizer(self, image, annots):
