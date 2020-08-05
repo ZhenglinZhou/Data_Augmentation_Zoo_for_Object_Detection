@@ -14,7 +14,7 @@ This project is built for testing multily data augmentations for object detectio
 ## Augmentation zoo for object Detection
 ### Learning data augmentation strategies for object detection
 
-  1. Color Distortion
+1. Color Distortion
   - AutoContrast
   - Equalize: Equalize the image histogram
   - Posterize
@@ -27,7 +27,7 @@ This project is built for testing multily data augmentations for object detectio
   - Solarize_Only_BBoxes
   - Equalize_Only_Bboxes
 
-  2. Spatial Transformation
+2. Spatial Transformation
   - Cutout
   - BBox_Cutout
   - Flip
@@ -44,12 +44,12 @@ This project is built for testing multily data augmentations for object detectio
   - Flip_Only_BBoxes
   - Cutout_Only_Bboxes
 
-  3. Learned augmentation policy
+3. Learned augmentation policy
   - Policy v0, v1, and custom were used in AutoAugment Detection Paper
   - Policy v2, v3 are additional policies that perform well on object detection
   - Policy v4 is the policy which mentioned in this paper, "the best"
   
-  4. How to use
+4. How to use
   
   Make sure the file "/augmentation_zoo/Myautoaugment_utils.py" is in project folder.
   ```python
