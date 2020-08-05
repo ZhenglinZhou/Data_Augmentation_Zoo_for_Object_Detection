@@ -14,7 +14,7 @@ This project is built for testing multily data augmentations for object detectio
 ## Augmentation zoo for object Detection
 ### Learning data augmentation strategies for object detection
 
-1. Color Distortion
+#### Color Distortion
   - AutoContrast
   - Equalize: Equalize the image histogram
   - Posterize
@@ -27,7 +27,7 @@ This project is built for testing multily data augmentations for object detectio
   - Solarize_Only_BBoxes
   - Equalize_Only_Bboxes
 
-2. Spatial Transformation
+#### Spatial Transformation
   - Cutout
   - BBox_Cutout
   - Flip
@@ -44,12 +44,12 @@ This project is built for testing multily data augmentations for object detectio
   - Flip_Only_BBoxes
   - Cutout_Only_Bboxes
 
-3. Learned augmentation policy
+#### Learned augmentation policy
   - Policy v0, v1, and custom were used in AutoAugment Detection Paper
   - Policy v2, v3 are additional policies that perform well on object detection
   - Policy v4 is the policy which mentioned in this paper, "the best"
   
-4. How to use
+#### How to use
   
   Make sure the file "/augmentation_zoo/Myautoaugment_utils.py" is in project folder.
   ```python
@@ -91,7 +91,7 @@ Sample = Gridmask(Sample)
 ```
 
 ### Augmentation for small object detection
-this method includes 3 Copy-Pasting Strategies:
+his method includes 3 Copy-Pasting Strategies:
 
 1. Pick one small object in an image and copy-paste it 1 time in random locations. 
 2. Choose numerous small objects and copy-paste each of these 3 times in an arbitrary position. 
@@ -140,7 +140,7 @@ augmenter = 0SmallObjectAugmentation(SOA_THRESH, SOA_PROB, SOA_COPY_TIMES, SOA_E
 Sample = augmenter(Sample)
 ```
 
-## The Experiment
+## Experiment
 I use the RetinaNet with ResNet-18, testing in VOC and KITTI. VOC_BATCH_SIZE = 8, KITTI_BATCH_SIZE = 24
 | DataSets | No Augmentation | Random Flip | Autoaugmenter('v1') | Autoaugmenter('v4') | GridMask | Small Object Augmentation |
 | -------- | --------------- | ----------- | ------------------- | ------------------- | -------- | ------------------------- |
