@@ -27,7 +27,7 @@ This project is built for testing multiple data augmentations for object detecti
   - Solarize_Only_BBoxes
   - Equalize_Only_Bboxes
   
-![Color_trans](https://github.com/zzl-pointcloud/Data_Augmentation_Zoo_for_Object_Detection/blob/master/show_img/Color_trans.png)
+![Color_trans](github.com/zzl-pointcloud/Data_Augmentation_Zoo_for_Object_Detection/blob/master/show_img/Color_trans.png)
 
 #### Spatial Transformation
   - Cutout
