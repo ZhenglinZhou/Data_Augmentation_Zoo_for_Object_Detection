@@ -97,7 +97,9 @@ Sample = Gridmask(Sample)
 ```
 
 ### Augmentation for small object detection
+
 ![SmallobjectAugmentation](https://github.com/zzl-pointcloud/Data_Augmentation_Zoo_for_Object_Detection/blob/master/show_img/Small_Object.png)
+
 This method includes 3 Copy-Pasting Strategies:
 
 1. Pick one small object in an image and copy-paste it 1 time in random locations. 
