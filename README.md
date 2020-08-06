@@ -154,7 +154,17 @@ I use the RetinaNet with ResNet-18, testing in VOC and KITTI. VOC_BATCH_SIZE = 8
 | DataSets | No Augmentation | Random Flip | Autoaugmenter('v1') | Autoaugmenter('v4') | GridMask | Small Object Augmentation |
 | -------- | --------------- | ----------- | ------------------- | ------------------- | -------- | ------------------------- |
 |    VOC   |                 |   0.63738   |       0.63651       |                     |          |                           | 
-|   KITTI  |     0.60375     |   0.63077   |       0.58631       |                     |  0.71868 |                           |
+|   KITTI  |     0.60375     |   0.63077   |       0.58631       |       0.64347       |  0.71868 |          0.62622          |
+
+| KITTI | Car | van | truck | pedestrian | Person_sitting | cyclist | Tram | Misc | mAP |
+| ----- | --- | --- | ----- | ---------- | -------------- | ------- | ---- | ---- | --- |
+| No Augmenation | 0.80197 | 0.64498 | 0.84922 | 0.52134 | 0.27078 | 0.50485 | 0.79602 | 0.47798 | 0.60375 |
+| Random Flip | 0.82147 | 0.66679 | 0.85982 | 0.54333 | 0.35177 | 0.53576 | 0.80296 | 0.46428 | 0.63077 |
+| AutoAugmenter(‘v1’) | 0.82838 | 0.55684 | 0.74368 | 0.55461 | 0.38256 | 0.48259 | 0.74964 | 0.39217 | 0.58631 |
+| AutoAugmenter(‘v4’) | 0.82566 | 0.64851 | 0.87592 | 0.54426 | 0.40881 | 0.56872 | 0.80106 | 0.47480 | 0.64347 |
+| GridMask | 0.85529 | 0.75980 | 0.91472 | 0.59351 | 0.51708 | 0.62842 | 0.86256 | 0.61804 | 0.71867 |
+| Small Object Augmentation | 0.83064 | 0.60390 | 0.85146 | 0.55325 | 0.42748 | 0.50965 | 0.76821 | 0.46511 | 0.62621 |
+
 
 ## My Contributions
 1. Realized the data preprocessing of VOC and KITTI in VocDataset/KittiDataset, prepare_data.py, which could be used by modifying the file path in config.py
