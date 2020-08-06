@@ -26,7 +26,7 @@ This project is built for testing multiple data augmentations for object detecti
   - Sharpness: Adjust the sharpness of the image
   - Solarize_Only_BBoxes
   - Equalize_Only_Bboxes
-![Colour_Distortion](https://raw.githubusercontent.com/zzl-pointcloud/Data_Augmentation_Zoo_for_Object_Detection/master/show_img/Color_trans.png)
+![Colour_Distortion](https://github.com/zzl-pointcloud/Data_Augmentation_Zoo_for_Object_Detection/blob/master/show_img/Color_trans.png)
 #### Spatial Transformation
   - Cutout
   - BBox_Cutout
