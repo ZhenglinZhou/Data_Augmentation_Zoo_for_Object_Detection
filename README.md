@@ -26,7 +26,8 @@ This project is built for testing multiple data augmentations for object detecti
   - Sharpness: Adjust the sharpness of the image
   - Solarize_Only_BBoxes
   - Equalize_Only_Bboxes
-![Colour_Distortion](https://raw.githubusercontent.com/zzl-pointcloud/Data_Augmentation_Zoo_for_Object_Detection/master/show_img/Color_trans.png)
+![ColourDistortion](https://github.com/zzl-pointcloud/Data_Augmentation_Zoo_for_Object_Detection/blob/master/show_img/Color_trans.png)
+
 #### Spatial Transformation
   - Cutout
   - BBox_Cutout
@@ -44,7 +45,8 @@ This project is built for testing multiple data augmentations for object detecti
   - Flip_Only_BBoxes
   - Cutout_Only_Bboxes
   
-![Spatial_Transformation](https://raw.githubusercontent.com/zzl-pointcloud/Data_Augmentation_Zoo_for_Object_Detection/master/show_img/Geo_Trans.png)
+![SpatialTransformation](https://github.com/zzl-pointcloud/Data_Augmentation_Zoo_for_Object_Detection/blob/master/show_img/Geo_Trans.png)
+
 #### Learned augmentation policy
   - Policy v0, v1, and custom were used in AutoAugment Detection Paper
   - Policy v2, v3 are additional policies that perform well on object detection
@@ -78,7 +80,7 @@ This project is built for testing multiple data augmentations for object detecti
  ```
 
 ### GridMask
-![GridMask](https://raw.githubusercontent.com/zzl-pointcloud/Data_Augmentation_Zoo_for_Object_Detection/master/show_img/GridMask_Trans.png)
+![GridMask](https://github.com/zzl-pointcloud/Data_Augmentation_Zoo_for_Object_Detection/blob/master/show_img/GridMask_Trans.png)
 Make sure the file "/augmentation_zoo/MyGridMask.py" is in project folder. And the input and output requirements are same as above
 ```python
 from MyGridMask import GridMask
@@ -93,7 +95,7 @@ Sample = Gridmask(Sample)
 ```
 
 ### Augmentation for small object detection
-![Small_object_Augmentation](https://raw.githubusercontent.com/zzl-pointcloud/Data_Augmentation_Zoo_for_Object_Detection/master/show_img/Small_Object.png)
+![SmallobjectAugmentation](https://github.com/zzl-pointcloud/Data_Augmentation_Zoo_for_Object_Detection/blob/master/show_img/Small_Object.png)
 This method includes 3 Copy-Pasting Strategies:
 
 1. Pick one small object in an image and copy-paste it 1 time in random locations. 
