@@ -1,7 +1,6 @@
 from prepare_data import KittiDataset, VocDataset, collater, Resizer, AspectRatioBasedSampler, Normalizer
 from torch.utils.data import DataLoader
 import torch
-from Augmentation import mixup, mix_loss, RandomFlip, AutoAugmenter
 from torchvision import transforms
 import collections
 import torch.optim as optim
@@ -13,6 +12,10 @@ import config as cfg
 import os
 from augmentation_zoo.MyGridMask import GridMask
 from augmentation_zoo.SmallObjectAugmentation import SmallObjectAugmentation
+from augmentation_zoo.Myautoaugment_utils import AutoAugmenter
+from augmentation_zoo.RandomFlip import RandomFlip
+from augmentation_zoo.Mixup_todo import mixup, mix_loss
+
 """
     author: zhenglin.zhou
     date: 20200724

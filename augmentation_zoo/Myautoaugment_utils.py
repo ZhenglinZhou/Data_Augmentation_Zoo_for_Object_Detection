@@ -1423,3 +1423,50 @@ def distort_image_with_autoaugment(image, bboxes, augmentation_name):
 
     return build_and_apply_nas_policy(policy, image, bboxes, augmentation_hparams)
 
+class AutoAugmenter(object):
+    """Applies the AutoAugment policy to `image` and `bboxes`.
+    Args:
+      image: `Tensor` of shape [height, width, 3] representing an image.
+      bboxes: `Tensor` of shape [N, 4] representing ground truth boxes that are
+        normalized between [0, 1].
+      augmentation_name: The name of the AutoAugment policy to use. The available
+        options are `v0`, `v1`, `v2`, `v3` and `test`. `v0` is the policy used for
+        all of the results in the paper and was found to achieve the best results
+        on the COCO dataset. `v1`, `v2` and `v3` are additional good policies
+        found on the COCO dataset that have slight variation in what operations
+        were used during the search procedure along with how many operations are
+        applied in parallel to a single image (2 vs 3).
+    Returns:
+      A tuple containing the augmented versions of `image` and `bboxes`.
+    """
+    def __init__(self, augmentation_name='v4'):
+        self.augmentation_name = augmentation_name
+
+    def normalizer(self, image, annots):
+        h, w = image.shape[0], image.shape[1]
+        ratio = np.array([w, h, w, h], dtype=int)
+        annots[:, :4] = annots[:, :4] / ratio
+        return annots
+
+    def unnormalizer(self, image, annots):
+        h, w = image.shape[0], image.shape[1]
+
+        ratio = np.array([w, h, w, h], dtype=int)
+        annots[:, :4] = annots[:, :4] * ratio
+
+        return annots.astype(np.float32)
+
+    def __call__(self, sample):
+        image, annots = sample['img'], sample['annot']
+        annots = self.normalizer(image, annots)
+        bboxes = annots[:, 0:4]
+        image = np.uint8(image*255)
+
+        image, bboxes = distort_image_with_autoaugment(image, bboxes, self.augmentation_name)
+
+        annots[:, 0:4] = bboxes
+        annots = self.unnormalizer(image, annots)
+        image = image.astype(np.float32)/255.0
+
+        sample = {'img': image, 'annot': annots}
+        return sample

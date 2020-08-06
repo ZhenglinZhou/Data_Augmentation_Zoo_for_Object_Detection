@@ -1,6 +1,5 @@
 from prepare_data import VocDataset, KittiDataset, Normalizer, Resizer
 from tools import SplitKittiDataset
-from Augmentation import AutoAugmenter, RandomFlip
 from config import VOC_ROOT_DIR, KITTI_ROOT_DIR
 from torchvision import transforms
 from tools import easy_visualization
@@ -8,6 +7,8 @@ from augmentation_zoo.MyGridMask import GridMask
 import config as cfg
 from tools import easy_visualization
 from augmentation_zoo.SmallObjectAugmentation import SmallObjectAugmentation
+from augmentation_zoo.Myautoaugment_utils import AutoAugmenter
+from augmentation_zoo.RandomFlip import RandomFlip
 
 def _make_transform():
     transform_list = list()

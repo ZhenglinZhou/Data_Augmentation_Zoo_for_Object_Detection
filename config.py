@@ -40,7 +40,7 @@ SOA_EPOCHS = 30
 SOA_ONE_OBJECT = False
 SOA_ALL_OBJECTS = False
 
-"""    MIXUP    """
+"""    MIXUP(TODO)    """
 MIXUP = False
 MIXUP_ALPHA = 1
 

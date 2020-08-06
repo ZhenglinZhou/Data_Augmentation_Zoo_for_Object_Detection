@@ -1,7 +1,7 @@
 # Data_Augmentation_Zoo_for_Object_Detection
 ## Background
 
-This project is built for testing multily data augmentations for object detection:
+This project is built for testing multiple data augmentations for object detection:
 1. Zoph B, Cubuk E D, Ghiasi G, et al. Learning data augmentation strategies for object detection[J]. arXiv preprint arXiv:1906.11172, 2019.
 [pdf](https://arxiv.org/pdf/1906.11172.pdf "pdf") | [github](https://github.com/tensorflow/tpu/blob/master/models/official/detection/utils/autoaugment_utils.py#L15 "pdf")
 
