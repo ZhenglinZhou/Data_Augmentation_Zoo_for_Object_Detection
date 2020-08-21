@@ -153,7 +153,7 @@ Sample = augmenter(Sample)
 I use the RetinaNet with ResNet-18, testing in VOC and KITTI. VOC_BATCH_SIZE = 8, KITTI_BATCH_SIZE = 24
 | DataSets | No Augmentation | Random Flip | Autoaugmenter('v1') | Autoaugmenter('v4') | GridMask | Small Object Augmentation |
 | -------- | --------------- | ----------- | ------------------- | ------------------- | -------- | ------------------------- |
-|    VOC   |                 |   0.63738   |       0.63651       |                     |          |                           | 
+|    VOC   |     0.61492     |   0.63738   |       0.63651       |       0.62267       |  0.65605 |          0.63870          | 
 |   KITTI  |     0.60375     |   0.63077   |       0.58631       |       0.64347       |  0.71868 |          0.62622          |
 
 | KITTI | Car | van | truck | pedestrian | Person_sitting | cyclist | Tram | Misc | mAP |
